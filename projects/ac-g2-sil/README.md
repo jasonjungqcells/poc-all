@@ -1,4 +1,4 @@
-# AC Gen2 EMS+ — Software-in-the-Loop (SIL) Rig
+# AC Gen2 EMS+ Software-in-the-Loop (SIL) Rig
 
 **A fully controlled, deterministic simulation of the EMS+ board, serving the real device API on `:9112`.**
 
@@ -45,10 +45,8 @@ means:
   demand.
 - **You cannot reproduce a bug.** Two runs on real hardware are never the same run.
 - **You cannot test in CI.** There is no board in the build pipeline.
-- **iOS had no simulator at all.** Android had a half-finished in-app scenario simulator; iOS had
-  nothing.
 
-This rig removes the board from the loop while keeping the interface identical.
+This rig removes the board from the loop while keeping the interface identical. However, this does not replace the necessary integration testing with the physical hardware - it'll help reduce the frequency of it and allow developers and QA to come up with a strategic approach to testing with various layers.
 
 ### The central design decision
 
@@ -56,13 +54,13 @@ This rig removes the board from the loop while keeping the interface identical.
 installer apps already speak, with the same self-signed TLS, the same `EmbResponse<T>` envelope,
 the same MQTT-over-WebSocket bridge at `/ws`.
 
-The alternative — a mock layer inside each app — was rejected because it tests the mock, not the
-app. Every client that ships to a real board takes a different code path than the one under test,
-which is precisely how integration bugs survive to production.
+The alternative, which was considered for a simulator poc, used a mock layer inside each app. It was not sufficient because it tests the mock, not the
+app. Every client that ships to a real board takes a different code path than the one under test, which is precisely how integration bugs survive to production.
 
 Because the seam is the wire and not the code, **clients run unmodified**, all three of them, and
 iOS gets a simulator for free.
 
+One important consideration is to define a strategy to keep these contract changes flowing into this simulator. Otherwise, this could become outdated fast.
 ---
 
 ## 2. What it simulates
