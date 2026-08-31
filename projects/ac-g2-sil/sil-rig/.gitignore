@@ -1,0 +1,45 @@
+# Node + TypeScript (ESM) rig, with a Vue 3 / Vite console under web/.
+
+# --- Dependencies -----------------------------------------------------------
+# package-lock.json is committed on purpose: the rig's whole value is that a
+# scenario plus a seed reproduces a run exactly, and that guarantee stops at the
+# dependency tree if the lockfile floats.
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# --- Build output -----------------------------------------------------------
+# `npm run build` emits the compiled rig and the console bundle together, both
+# under dist/. The console is served from dist/web at runtime, so it is a build
+# artifact rather than a checked-in asset.
+dist/
+build/
+*.tsbuildinfo
+
+# --- Tooling caches ---------------------------------------------------------
+.vite/
+node_modules/.vite/
+.rollup.cache/
+.eslintcache
+.cache/
+
+# --- Test and coverage output -----------------------------------------------
+coverage/
+*.lcov
+.nyc_output/
+test-results/
+
+# --- Runtime scratch --------------------------------------------------------
+# Snapshots and exported repro scenarios are meant to be attached to bug reports
+# or committed into scenarios/, so they are not ignored by name here; only the
+# obviously transient output is.
+*.log
+npm-debug.log*
+yarn-error.log*
+.DS_Store

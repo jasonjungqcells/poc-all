@@ -1,0 +1,46 @@
+# Repository-wide ignores.
+#
+# This is a multi-project monorepo, so this file deliberately covers only what
+# is true regardless of language: OS and editor droppings, local secrets, and
+# scratch output. Anything specific to a stack belongs to the project that uses
+# it — see projects/ac-g2-sil/sil-rig/.gitignore for the Node/TypeScript rules.
+
+# --- macOS / Windows / Linux desktop litter ---------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# --- Editors and IDEs -------------------------------------------------------
+# .vscode is not ignored wholesale: shared launch/task/extension recommendations
+# are worth committing in a repo people are meant to clone and run.
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# --- Local secrets ----------------------------------------------------------
+# The rig generates its own self-signed TLS material in memory, so nothing here
+# should ever exist; this is a backstop, not a description of current practice.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.keystore
+
+# --- Scratch ----------------------------------------------------------------
+*.log
+tmp/
+.tmp/
