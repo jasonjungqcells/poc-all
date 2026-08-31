@@ -111,6 +111,8 @@ npm run serve
 [sil info] device API   https://0.0.0.0:9112   (point installer apps here)
 [sil info] websocket    wss://0.0.0.0:9112/ws
 [sil info] control API  http://0.0.0.0:9114/control
+[sil info] event stream http://0.0.0.0:9114/events
+[sil info] web console  http://0.0.0.0:9114/
 [sil info] register map 520 registers / 4411 metrics, 15 cyclic
 [sil info] seed 1
 ```
@@ -261,6 +263,19 @@ npx tsx src/cli.ts ctl get plant.battery.soc_pct
 npx tsx src/cli.ts ctl set plant.battery.soc_pct 15
 npx tsx src/cli.ts ctl diff                       # only what you changed from defaults
 npx tsx src/cli.ts ctl reset
+cat edits.json | npx tsx src/cli.ts ctl patch -   # atomic bulk write from stdin
+```
+
+The buses have read-only inspectors, which is what the console's bus views call:
+
+```bash
+npx tsx src/cli.ts spi status                     # frame length, CRC, raw hex
+npx tsx src/cli.ts spi read <register>
+npx tsx src/cli.ts can status
+npx tsx src/cli.ts can faults                     # decoded flag bits
+npx tsx src/cli.ts can registers [--filter pcs]
+npx tsx src/cli.ts can read <register>
+npx tsx src/cli.ts can write <register> <value>
 ```
 
 ### Over HTTP
@@ -276,6 +291,42 @@ POST   :9114/control/reset
 
 `PATCH` is atomic: every value is validated before any is committed, so a bad control id in a
 batch of forty leaves the rig untouched rather than half-applied.
+
+### Live events
+
+The control plane pushes as well as answers. `GET :9114/events` is a Server-Sent Events stream —
+one-way, self-reconnecting, and readable with `curl`:
+
+```bash
+curl -N :9114/events
+```
+
+| Event | Carries |
+|---|---|
+| `hello` | Protocol version, seed, full state, scenario state, control diff — sent on every (re)connect |
+| `tick` | Clock, plant, faults, MCU and site, coalesced to 4 Hz |
+| `control` | Control changes since the last flush, latest value per id |
+| `action` | An action control was invoked |
+| `reset` | Controls returned to defaults, with the resulting state |
+| `fault` | A fault was injected or cleared, plus the active list — never coalesced |
+| `scenario` | Scenario progress changed |
+
+Tick events are throttled server-side because the clock can run thousands of times faster than
+real time; a client sees a coalesced view at a rate it can render regardless of `sim.clock.rate`.
+`GET :9114/events/stats` reports connected clients and events sent.
+
+### Web console
+
+A browser cockpit for everything above is served from the control port at `http://localhost:9114/`:
+
+```bash
+npm run web:build      # build once; the rig then serves it
+npm run web:dev        # or: Vite dev server on :9115, proxying to :9114
+```
+
+It is a **thin client of the control API** — no simulation logic, no state of its own, and
+nothing it can do that the CLI cannot. The rig runs headless in CI with the console never built.
+Plan and phase status: `AC-GEN2-SIL-WEB-CONSOLE-PLAN.md`.
 
 ### The 15 control groups
 
@@ -310,10 +361,36 @@ state.
 
 ```bash
 npx tsx src/cli.ts scenario list
+npx tsx src/cli.ts scenario facets              # the filter vocabulary, with counts
+npx tsx src/cli.ts scenario list --kind failure --area grid --timed
+npx tsx src/cli.ts scenario list --search outage
 npx tsx src/cli.ts scenario show grid_outage
 npx tsx src/cli.ts scenario load grid_outage
+npx tsx src/cli.ts scenario stop                   # abort a running timeline
+npx tsx src/cli.ts scenario reload                 # re-read scenarios/ without restarting
+npx tsx src/cli.ts scenario export bug-4821.yaml   # current session as a scenario file
 npx tsx src/cli.ts serve --scenario grid_outage    # load at boot
 ```
+
+157 scenarios carry 88 distinct tags between them, and 80 of those tags appear once or twice —
+a fine vocabulary for authors, a useless one for finding anything. The rig therefore folds them
+onto two short axes it computes itself: a **kind** (baseline, conformance, endurance, boundary,
+failure, degraded, nominal — every scenario has exactly one) and any number of **areas** (grid,
+energy, buses, faults, connectivity, cloud, setup, app). `scenario facets` prints both with
+counts and a one-line explanation of each. `--kind failure --area grid` cuts 157 down to 7.
+
+The listing says what each scenario *is*, which name and tags cannot: two thirds of the corpus
+is a static rig setup with no timeline at all, and the rest are timed runs of known length.
+
+```
+grid_outage                    failure   20m run, 2 steps, 2 checks  Clean transition to island operation and back.
+grid_frequency_50hz            failure   static setup                A 50 Hz regional profile against a site configured for 60 Hz.
+```
+
+`scenario export` turns whatever you have poked into a reproducible artifact: it renders the
+control diff, the clock and the seed as scenario YAML. Write it into `scenarios/`, run
+`scenario reload`, and it is loadable by name — that is the loop the console's Repro view
+drives, and it works identically from the terminal.
 
 ### Anatomy
 
