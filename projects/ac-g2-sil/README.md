@@ -1,4 +1,4 @@
-# AC Gen2 EMS+ — Software-in-the-Loop (SIL) Rig
+# AC Gen2 EMS+ Software-in-the-Loop (SIL) Rig
 
 **A fully controlled, deterministic simulation of the EMS+ board, serving the real device API on `:9112`.**
 
@@ -45,10 +45,8 @@ means:
   demand.
 - **You cannot reproduce a bug.** Two runs on real hardware are never the same run.
 - **You cannot test in CI.** There is no board in the build pipeline.
-- **iOS had no simulator at all.** Android had a half-finished in-app scenario simulator; iOS had
-  nothing.
 
-This rig removes the board from the loop while keeping the interface identical.
+This rig removes the board from the loop while keeping the interface identical. However, this does not replace the necessary integration testing with the physical hardware - it'll help reduce the frequency of it and allow developers and QA to come up with a strategic approach to testing with various layers.
 
 ### The central design decision
 
