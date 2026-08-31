@@ -1,0 +1,9 @@
+name: ble_permission_denied
+extends: base_minimal
+description: >
+  The OS denies BLE permission. Purely client-side, but included so the flow can be
+  rehearsed end to end.
+tags: [ble, failure, permissions, client]
+controls:
+  ble.enabled: true
+  ble.pair.fail_reason: permission_denied

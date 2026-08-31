@@ -1,0 +1,8 @@
+name: mi_scan_partial
+extends: base_solar
+description: Discovery stalls at three of eight microinverters.
+tags: [mi, commissioning, failure, common]
+controls:
+  site.mi_count: 8
+  mi.scan.discover_count: 3
+  mi.scan.partial_pct: 38

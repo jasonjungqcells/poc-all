@@ -1,0 +1,6 @@
+name: scale_many_faults
+extends: base_residential
+description: Two hundred historical faults in the fault history list.
+tags: [scale, ui, fault]
+controls:
+  db.fault_history_count: 200

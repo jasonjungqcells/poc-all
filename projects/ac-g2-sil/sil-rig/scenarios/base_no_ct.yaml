@@ -1,0 +1,6 @@
+name: base_no_ct
+extends: base_residential
+description: No consumption CT installed, so load data is unavailable and reads as zero.
+tags: [base, degraded, ct]
+controls:
+  site.ct.consumption_pair1: NotInstalled

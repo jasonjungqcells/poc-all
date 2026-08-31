@@ -1,0 +1,10 @@
+name: mi_offline_subset
+extends: base_solar
+description: >
+  Two microinverters drop offline after commissioning, so array output falls below
+  expectation without any single obvious fault.
+tags: [mi, degraded, common]
+timeline:
+  - at: 2m
+    set: { mi.offline_count: 2 }
+    inject: { code: m002, device: micro-inverter, level: A }

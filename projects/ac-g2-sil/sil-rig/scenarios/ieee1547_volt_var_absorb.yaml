@@ -1,0 +1,15 @@
+name: ieee1547_volt_var_absorb
+extends: base_solar
+description: >
+  Volt-VAR (SunSpec 705). Reactive power is absorbed above the reference
+  voltage and injected below it, while real power is untouched. Apparent power
+  therefore exceeds real power, and any UI conflating the two will show it.
+tags: [grid, ieee1547, volt-var, standards]
+controls:
+  grid.volt_var.enabled: true
+  grid.volt_var.var_max_pct: 44
+timeline:
+  - at: 30s
+    set: { plant.grid.voltage_v: 254 }
+  - at: 90s
+    set: { plant.grid.voltage_v: 226 }

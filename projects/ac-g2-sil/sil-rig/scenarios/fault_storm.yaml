@@ -1,0 +1,9 @@
+name: fault_storm
+extends: base_residential
+description: Twenty simultaneous faults across devices, stressing list rendering and grouping.
+tags: [fault, chaos, ui]
+seed: 99
+controls:
+  fault.random.enabled: true
+  fault.random.rate_per_hour: 3600
+  fault.random.max_active: 20

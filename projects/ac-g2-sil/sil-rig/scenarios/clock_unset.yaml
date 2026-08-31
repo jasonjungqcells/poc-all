@@ -1,0 +1,9 @@
+name: clock_unset
+extends: base_residential
+description: >
+  The device booted without NTP, so its clock reads 1970. Timestamps must not be
+  rendered as valid dates.
+tags: [time, failure, boundary]
+clock:
+  start: "1970-01-01T00:00:00Z"
+  rate: 1

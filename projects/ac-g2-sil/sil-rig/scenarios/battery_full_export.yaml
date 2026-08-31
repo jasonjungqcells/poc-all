@@ -1,0 +1,14 @@
+name: battery_full_export
+extends: base_residential
+description: SoC at 100 must render FullCharged even while battery power is negative.
+tags: [energy, battery, boundary]
+controls:
+  plant.pv_w: 7000
+  plant.load_w: 800
+  plant.pv_profile: custom
+  plant.load_profile: custom
+  plant.battery.soc_pct: 100
+expect:
+  - at: 5s
+    that: telemetry.battery_713_SoC
+    equals: 100

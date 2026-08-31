@@ -1,0 +1,7 @@
+name: mcu_version_mismatch
+extends: base_residential
+description: The MCU firmware version is older than the MPU expects.
+tags: [mcu, firmware, compatibility, failure]
+controls:
+  mcu.fw_version: "0.9.0"
+  cloud.error_code: 4602

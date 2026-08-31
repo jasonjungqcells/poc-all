@@ -1,0 +1,9 @@
+name: scale_unicode_strings
+extends: base_residential
+description: >
+  Emoji, right-to-left text and combining characters in every user-supplied string
+  field.
+tags: [scale, ui, boundary, i18n]
+controls:
+  sim.unicode_strings: true
+  site.name: "테스트 사이트 \u0645\u0648\u0642\u0639 \U0001F50B\u26A1"

@@ -1,0 +1,8 @@
+name: ws_duplicate_tid
+extends: base_residential
+description: >
+  Every request is answered twice with the same tid. A client that does not
+  deduplicate on tid will double-apply results.
+tags: [api, websocket, failure, protocol]
+controls:
+  api.ws.duplicate_responses: true

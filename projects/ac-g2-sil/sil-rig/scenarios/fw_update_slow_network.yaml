@@ -1,0 +1,7 @@
+name: fw_update_slow_network
+extends: base_residential
+description: Transfer over a 64 kbps link, so the update takes a very long time.
+tags: [firmware, slow, network]
+controls:
+  fw.transfer_rate_kbps: 64
+  api.route.update_chunk.latency_ms: 2000

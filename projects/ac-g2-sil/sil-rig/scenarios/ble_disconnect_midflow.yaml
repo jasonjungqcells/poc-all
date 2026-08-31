@@ -1,0 +1,10 @@
+name: ble_disconnect_midflow
+extends: base_minimal
+description: The link drops partway through the commissioning exchange.
+tags: [ble, failure]
+controls:
+  ble.enabled: true
+timeline:
+  - at: 45s
+    set: { ble.pair.fail_reason: disconnect }
+    note: link lost mid-flow

@@ -1,0 +1,14 @@
+name: export_to_grid
+extends: base_residential
+description: PV exceeds load with a full battery, so the surplus exports. Grid power goes negative.
+tags: [happy, energy, export]
+controls:
+  plant.pv_profile: custom
+  plant.load_profile: custom
+  plant.pv_w: 6000
+  plant.load_w: 1000
+  plant.battery.soc_pct: 100
+expect:
+  - at: 5s
+    that: telemetry.grid_200_W
+    lessThan: 0

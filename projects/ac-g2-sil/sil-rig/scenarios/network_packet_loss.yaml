@@ -1,0 +1,8 @@
+name: network_packet_loss
+extends: base_residential
+description: Thirty percent packet loss, so retries and idempotency matter.
+tags: [network, failure]
+controls:
+  net.cloud.packet_loss_pct: 30
+  api.fail_rate_pct: 30
+  api.fail_status: 503

@@ -1,0 +1,16 @@
+name: normal_day
+extends: base_residential
+description: Full 24-hour clear-sky cycle at 60x. Every energy-flow case appears naturally.
+tags: [happy, energy, soak]
+clock:
+  start: "2026-06-21T00:00:00-07:00"
+  rate: 60
+controls:
+  plant.pv_profile: clear_day
+  plant.load_profile: residential_day
+  plant.battery.soc_pct: 30
+  plant.energy_control: 1
+expect:
+  - at: 13h
+    that: telemetry.pv_200_W
+    greaterThan: 0

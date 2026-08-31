@@ -1,0 +1,18 @@
+name: load_ev_charging
+extends: base_residential
+description: An 11 kW EV charging session overnight, the dominant modern load pattern.
+tags: [load, ev, common]
+clock:
+  start: "2026-06-21T22:00:00-07:00"
+  rate: 60
+controls:
+  plant.pv_profile: night
+  plant.load_profile: custom
+  plant.load_w: 800
+timeline:
+  - at: 10m
+    set: { plant.load_w: 11800 }
+    note: EV session begins
+  - at: 4h
+    set: { plant.load_w: 800 }
+    note: EV session ends

@@ -1,0 +1,6 @@
+name: api_truncated_response
+extends: base_residential
+description: The telemetry body is cut off mid-stream.
+tags: [api, failure, parsing]
+controls:
+  api.route.telemetry.truncate: true

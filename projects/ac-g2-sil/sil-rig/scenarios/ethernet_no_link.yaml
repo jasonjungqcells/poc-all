@@ -1,0 +1,7 @@
+name: ethernet_no_link
+extends: base_residential
+description: Cable connected but no link is established.
+tags: [network, ethernet, failure]
+controls:
+  net.ethernet.state: no_link
+  net.type: 0

@@ -1,0 +1,15 @@
+name: self_consumption
+extends: base_residential
+description: AUTO mode. PV covers the load and the surplus charges the battery.
+tags: [happy, energy]
+controls:
+  plant.pv_profile: custom
+  plant.load_profile: custom
+  plant.pv_w: 5000
+  plant.load_w: 1500
+  plant.battery.soc_pct: 50
+  plant.energy_control: 1
+expect:
+  - at: 5s
+    that: telemetry.battery_200_W
+    lessThan: 0

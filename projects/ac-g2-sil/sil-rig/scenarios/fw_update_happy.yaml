@@ -1,0 +1,9 @@
+name: fw_update_happy
+extends: base_residential
+description: Clean MCU firmware update from 0 to 100 percent.
+tags: [happy, firmware]
+controls:
+  fw.target: mcu
+  fw.fail_mode: none
+  mcu.fw.crc_pass: true
+  mcu.fw.erase_ok: true

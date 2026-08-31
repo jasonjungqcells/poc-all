@@ -1,0 +1,8 @@
+name: api_timeout_hang
+extends: base_residential
+description: >
+  The telemetry endpoint accepts the connection and never responds. The worst
+  case for a client, because only its own timeout can break the deadlock.
+tags: [api, failure, timeout, worst-case]
+controls:
+  api.route.telemetry.hang: true

@@ -1,0 +1,7 @@
+name: ble_mtu_small
+extends: base_minimal
+description: A 23 byte MTU, so every payload must be fragmented.
+tags: [ble, boundary, protocol]
+controls:
+  ble.enabled: true
+  ble.mtu: 23

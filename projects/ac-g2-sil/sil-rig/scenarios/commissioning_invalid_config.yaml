@@ -1,0 +1,7 @@
+name: commissioning_invalid_config
+extends: base_residential
+description: The configuration JSON is rejected as invalid. Cloud code 4603.
+tags: [commissioning, failure, config]
+controls:
+  db.config_invalid: true
+  cloud.error_code: 4603

@@ -1,0 +1,9 @@
+name: tls_cert_expired
+extends: base_residential
+description: The board TLS certificate has expired.
+tags: [network, tls, failure]
+controls:
+  net.tls.cert_expired: true
+timeline:
+  - at: 30s
+    inject: { code: e028, device: ems, level: A }

@@ -1,0 +1,9 @@
+name: fw_update_mcu_unresponsive
+extends: base_residential
+description: The MCU stops answering partway through the update.
+tags: [firmware, failure, spi, mcu]
+timeline:
+  - at: 45s
+    set: { mcu.online: false }
+    inject: { code: e025, device: ems, level: F }
+    note: MCU stops responding on SPI

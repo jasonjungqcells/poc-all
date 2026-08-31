@@ -1,0 +1,8 @@
+name: api_intermittent_5pct
+extends: base_residential
+description: Five percent of calls fail at random. Seeded, so the failures repeat exactly.
+tags: [api, failure, flaky]
+seed: 1337
+controls:
+  api.fail_rate_pct: 5
+  api.fail_status: 503

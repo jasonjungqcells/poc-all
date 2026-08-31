@@ -1,0 +1,9 @@
+name: commissioning_already_done
+extends: base_residential
+description: >
+  The device is already commissioned and bound to another account. The client
+  must offer a clear recovery path rather than looping.
+tags: [commissioning, failure, common]
+controls:
+  site.commissioning_status: COMPLETED
+  cloud.error_code: 4603

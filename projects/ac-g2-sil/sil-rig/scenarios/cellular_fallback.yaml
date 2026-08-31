@@ -1,0 +1,11 @@
+name: cellular_fallback
+extends: base_residential
+description: Wi-Fi drops and cellular takes over as the active interface.
+tags: [network, cellular, failover]
+timeline:
+  - at: 1m
+    set: { net.wifi.state: disconnected, net.type: 0 }
+    note: wifi lost
+  - at: 1m30s
+    set: { net.cellular.state: active, net.type: 3 }
+    note: cellular assumes the connection

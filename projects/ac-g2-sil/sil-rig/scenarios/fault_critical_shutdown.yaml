@@ -1,0 +1,8 @@
+name: fault_critical_shutdown
+extends: base_residential
+description: A fatal fault that takes the system offline.
+tags: [fault, failure, worst-case]
+timeline:
+  - at: 30s
+    inject: { code: e001, device: ems, level: F }
+    set: { plant.energy_control: 0, mcu.online: false }

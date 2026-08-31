@@ -1,0 +1,8 @@
+name: register_stale_values
+extends: base_residential
+description: >
+  Register values freeze while the API keeps returning HTTP 200. Silent staleness
+  is harder to detect than an outright error, and the UI should notice.
+tags: [mcu, registers, failure, silent]
+controls:
+  mcu.registers.freeze: true

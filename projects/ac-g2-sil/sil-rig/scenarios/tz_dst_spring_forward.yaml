@@ -1,0 +1,9 @@
+name: tz_dst_spring_forward
+extends: base_residential
+description: The 02:00 to 03:00 hour does not exist, so hourly buckets must not duplicate or gap.
+tags: [time, dst, boundary]
+controls:
+  sim.timezone: America/Los_Angeles
+clock:
+  start: "2026-03-08T01:45:00-08:00"
+  rate: 60

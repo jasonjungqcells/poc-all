@@ -1,0 +1,8 @@
+name: cloudy_intermittent
+extends: base_solar
+description: Fast-moving cloud cover, so PV output swings sharply minute to minute.
+tags: [solar, weather]
+seed: 777
+controls:
+  plant.pv_profile: intermittent
+  plant.pv.cloud_variability: 0.7

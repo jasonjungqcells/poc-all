@@ -1,0 +1,6 @@
+name: spi_4k_mode
+extends: base_residential
+description: The 4107 byte bulk transfer mode used for firmware payloads.
+tags: [spi, mcu, firmware]
+controls:
+  mcu.spi.mode_4k: true

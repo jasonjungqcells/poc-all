@@ -1,0 +1,7 @@
+name: fw_update_timeout
+extends: base_residential
+description: Finalize exceeds the 600000 ms RESPONSE_TIMEOUT_MS budget.
+tags: [firmware, failure, timeout]
+controls:
+  fw.fail_mode: timeout
+  api.route.update_finalize.hang: true

@@ -1,0 +1,6 @@
+name: api_auth_always_reject
+extends: base_residential
+description: Permanent 401 on every authenticated call.
+tags: [api, auth, failure]
+controls:
+  api.auth.reject: true

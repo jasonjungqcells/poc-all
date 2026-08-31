@@ -1,0 +1,17 @@
+name: can_bus_off
+extends: base_residential
+description: >
+  CAN controller accumulates transmit errors and takes itself off the bus.
+  Reads stop permanently rather than slowly -- the failure mode clients most
+  often mistake for a transient timeout and retry forever.
+tags: [can, transport, failure]
+timeline:
+  - at: 20s
+    set: { can.tx_timeout_rate_pct: 40 }
+  - at: 45s
+    set: { can.bus_off: true }
+    inject:
+      - { code: e005, device: ems, level: F }
+  - at: 120s
+    set: { can.bus_off: false, can.tx_timeout_rate_pct: 0 }
+    clear: [e005]

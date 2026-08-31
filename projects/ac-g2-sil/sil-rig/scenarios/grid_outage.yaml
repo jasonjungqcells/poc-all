@@ -1,0 +1,24 @@
+name: grid_outage
+extends: base_backup_primary
+description: Clean transition to island operation and back.
+tags: [grid, backup, failure]
+controls:
+  plant.battery.soc_pct: 70
+  plant.load_profile: custom
+  plant.load_w: 2000
+timeline:
+  - at: 1m
+    set: { plant.grid.status: 1 }
+    inject: { code: g003, device: grid, level: F }
+    note: utility outage begins
+  - at: 20m
+    set: { plant.grid.status: 0 }
+    clear: [g003]
+    note: utility restored
+expect:
+  - at: 2m
+    that: telemetry.Grid_Status
+    equals: 1
+  - at: 2m
+    that: telemetry.grid_200_W
+    equals: 0

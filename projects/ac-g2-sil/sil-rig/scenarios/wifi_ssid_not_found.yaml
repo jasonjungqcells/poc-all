@@ -1,0 +1,9 @@
+name: wifi_ssid_not_found
+extends: base_residential
+description: >
+  The scan succeeds but the target SSID is absent. Distinct from a failed scan,
+  and a case clients often conflate.
+tags: [network, wifi, commissioning, failure]
+controls:
+  net.wifi.state: disconnected
+  net.wifi.connect_fail_reason: not_found

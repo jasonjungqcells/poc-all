@@ -1,0 +1,7 @@
+name: mi_scan_happy
+extends: base_solar
+description: Discovery of all eight microinverters.
+tags: [happy, mi, commissioning]
+controls:
+  mi.scan.discover_count: 8
+  site.mi_count: 8

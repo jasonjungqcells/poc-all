@@ -1,0 +1,9 @@
+name: battery_degraded_soh
+extends: base_residential
+description: State of health at 70 percent, so usable capacity is reduced accordingly.
+tags: [battery, degraded]
+controls:
+  plant.battery.soh_pct: 70
+timeline:
+  - at: 30s
+    inject: { code: b005, device: battery-qhome-smart, level: A }

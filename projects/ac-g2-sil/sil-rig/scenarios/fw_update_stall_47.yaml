@@ -1,0 +1,8 @@
+name: fw_update_stall_47
+extends: base_residential
+description: >
+  Progress freezes at 47 percent and never advances. The support-ticket classic,
+  and the reason swupdate_progress is the highest-value notification channel.
+tags: [firmware, failure, common]
+controls:
+  fw.progress_stall_at_pct: 47

@@ -1,0 +1,6 @@
+name: spi_nack_storm
+extends: base_residential
+description: The MCU NACKs every command.
+tags: [spi, mcu, failure]
+controls:
+  mcu.spi.nack_rate_pct: 100

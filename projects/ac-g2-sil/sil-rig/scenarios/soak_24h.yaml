@@ -1,0 +1,12 @@
+name: soak_24h
+extends: base_residential
+description: >
+  A full 24 hour day compressed at 60x. Catches accumulator drift, memory growth and
+  midnight rollover in one pass.
+tags: [soak, long-running]
+clock:
+  start: "2026-06-21T00:00:00-07:00"
+  rate: 60
+controls:
+  plant.pv_profile: sunrise_sunset
+  plant.load_profile: residential_day

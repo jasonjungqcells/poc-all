@@ -1,0 +1,8 @@
+name: api_rate_limited
+extends: base_residential
+description: Rate limiting with HTTP 429.
+tags: [api, failure]
+controls:
+  api.fail_rate_pct: 100
+  api.fail_status: 429
+  cloud.error_code: 4290

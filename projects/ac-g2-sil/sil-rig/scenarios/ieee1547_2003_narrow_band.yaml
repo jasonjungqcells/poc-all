@@ -1,0 +1,14 @@
+name: ieee1547_2003_narrow_band
+extends: base_residential
+description: >
+  A site commissioned under IEEE 1547-2003 trips at 59.3 Hz, where a 2018 site
+  would ride through continuously down to 56.5 Hz. Same hardware, same grid,
+  different behaviour -- and the app has to explain it.
+tags: [grid, ieee1547, frequency, standards]
+controls:
+  grid.ieee1547.revision: '2003'
+timeline:
+  - at: 30s
+    set: { plant.grid.frequency_hz: 59.0 }
+  - at: 90s
+    set: { plant.grid.frequency_hz: 60 }

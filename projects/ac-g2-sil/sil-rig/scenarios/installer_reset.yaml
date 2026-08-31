@@ -1,0 +1,10 @@
+name: installer_reset
+extends: base_residential
+description: Factory installer reset wipes commissioning state and returns to a clean device.
+tags: [commissioning, reset]
+controls:
+  site.commissioning_status: COMPLETED
+timeline:
+  - at: 30s
+    set: { site.commissioning_status: NOT_STARTED }
+    note: installer reset applied

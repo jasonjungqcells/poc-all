@@ -1,0 +1,8 @@
+name: fault_sweep_all_devices
+extends: base_residential
+description: The same sweep across all ten device families in the codebook.
+tags: [fault, sweep, high-value, soak]
+controls:
+  fault.sweep.device: all
+  fault.sweep.hold_s: 10
+  fault.sweep.enabled: true

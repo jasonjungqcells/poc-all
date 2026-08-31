@@ -1,0 +1,9 @@
+name: locale_ko_kr
+extends: base_residential
+description: >
+  A Korean locale. Fault descriptions ship in English only, so untranslated strings
+  must still render acceptably.
+tags: [locale, boundary, i18n]
+controls:
+  sim.locale: ko-KR
+  sim.timezone: Asia/Seoul

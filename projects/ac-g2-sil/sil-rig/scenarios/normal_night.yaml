@@ -1,0 +1,17 @@
+name: normal_night
+extends: base_residential
+description: Night operation. PV is zero and the battery carries the load.
+tags: [happy, energy, night]
+clock:
+  start: "2026-06-21T23:00:00-07:00"
+controls:
+  plant.pv_profile: night
+  plant.load_profile: residential_day
+  plant.battery.soc_pct: 80
+expect:
+  - at: 30s
+    that: telemetry.pv_200_W
+    equals: 0
+  - at: 30s
+    that: telemetry.battery_200_W
+    greaterThan: 0

@@ -1,0 +1,6 @@
+name: fw_update_rollback
+extends: base_residential
+description: Verification fails and the A/B partition scheme rolls back.
+tags: [firmware, failure]
+controls:
+  fw.fail_mode: rollback

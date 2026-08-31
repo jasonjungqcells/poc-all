@@ -1,0 +1,10 @@
+name: commissioning_no_devices_found
+extends: base_minimal
+description: >
+  Discovery finds nothing after all six MAX_EQUIPMENT_FETCH_ATTEMPTS attempts at
+  the 3000 ms retry interval.
+tags: [commissioning, failure, discovery]
+controls:
+  site.battery_count: 0
+  site.mi_count: 0
+  mi.scan.discover_count: 0

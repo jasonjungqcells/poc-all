@@ -1,0 +1,8 @@
+name: can_write_reject
+extends: base_residential
+description: >
+  PCS rejects every CAN write. Settings appear to save in the UI and silently
+  do not take, which is worse than an outright error.
+tags: [can, failure, commissioning]
+controls:
+  can.write_reject: true

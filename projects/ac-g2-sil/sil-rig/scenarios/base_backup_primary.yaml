@@ -1,0 +1,7 @@
+name: base_backup_primary
+extends: base_residential
+description: Backup-capable whole-home configuration.
+tags: [base, backup]
+controls:
+  site.ems_type: BACKUP_PRIMARY
+  site.backup_type: WHOLE_HOME

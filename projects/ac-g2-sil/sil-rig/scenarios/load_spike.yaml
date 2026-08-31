@@ -1,0 +1,16 @@
+name: load_spike
+extends: base_residential
+description: A large motor start causes a brief load spike well beyond the steady state.
+tags: [load, transient]
+controls:
+  plant.load_profile: custom
+  plant.load_w: 1500
+timeline:
+  - at: 1m
+    set: { plant.load_w: 11000 }
+    note: motor inrush
+  - at: 1m5s
+    set: { plant.load_w: 4500 }
+    note: steady running load
+  - at: 5m
+    set: { plant.load_w: 1500 }

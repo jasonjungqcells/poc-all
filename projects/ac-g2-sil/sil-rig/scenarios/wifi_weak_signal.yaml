@@ -1,0 +1,9 @@
+name: wifi_weak_signal
+extends: base_residential
+description: Associated but at -88 dBm, marginal signal.
+tags: [network, wifi, degraded]
+controls:
+  net.wifi.rssi_dbm: -88
+timeline:
+  - at: 1m
+    inject: { code: e017, device: ems, level: W }

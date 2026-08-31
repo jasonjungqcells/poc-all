@@ -1,0 +1,4 @@
+name: commissioning_ct_missing
+extends: base_no_ct
+description: No CT installed, so grid power cannot be measured.
+tags: [commissioning, failure, boundary]

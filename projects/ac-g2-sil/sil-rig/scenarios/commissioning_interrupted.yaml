@@ -1,0 +1,10 @@
+name: commissioning_interrupted
+extends: base_minimal
+description: Commissioning is interrupted midway, leaving partial state to resume from.
+tags: [commissioning, failure, resume]
+controls:
+  site.commissioning_status: IN_PROGRESS
+timeline:
+  - at: 45s
+    set: { api.fail_rate_pct: 100, api.fail_status: 503 }
+    note: backend drops out mid-commissioning

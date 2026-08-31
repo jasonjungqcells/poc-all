@@ -1,0 +1,19 @@
+name: ieee1547_volt_watt_curtail
+extends: base_large_solar
+description: >
+  Volt-Watt (SunSpec 706). High grid voltage on a long feeder curtails real
+  power on a sunny day. Production drops with no fault raised and nothing
+  wrong -- the hardest case to explain to a homeowner.
+tags: [grid, ieee1547, volt-watt, standards, silent-failure]
+controls:
+  grid.volt_watt.enabled: true
+  grid.volt_watt.v_start_pu: 1.06
+  grid.volt_watt.v_end_pu: 1.1
+  plant.pv_profile: clear_day
+timeline:
+  - at: 30s
+    set: { plant.grid.voltage_v: 254 }
+    note: 1.058 pu, just below the knee
+  - at: 90s
+    set: { plant.grid.voltage_v: 262 }
+    note: 1.092 pu, deep into curtailment

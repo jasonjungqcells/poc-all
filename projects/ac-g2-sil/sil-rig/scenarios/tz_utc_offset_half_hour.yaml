@@ -1,0 +1,7 @@
+name: tz_utc_offset_half_hour
+extends: base_residential
+description: A 30 minute UTC offset, which naive offset maths gets wrong.
+tags: [time, locale, boundary]
+controls:
+  sim.timezone: Asia/Kolkata
+  site.timezone_id: Asia/Kolkata

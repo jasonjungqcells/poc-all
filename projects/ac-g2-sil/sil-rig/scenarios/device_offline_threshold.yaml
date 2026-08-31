@@ -1,0 +1,14 @@
+name: device_offline_threshold
+extends: base_residential
+description: >
+  Heartbeats stop. The cloud considers a device offline after five minutes with
+  no heartbeat, which is the real definition of "offline" in this system.
+tags: [network, offline, cloud, boundary]
+controls:
+  cloud.enabled: true
+  cloud.heartbeat_stall: true
+timeline:
+  - at: 5m
+    set: { cloud.error_code: 4600 }
+    inject: { code: e004, device: ems, level: A }
+    note: five minute offline threshold crossed

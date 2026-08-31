@@ -1,0 +1,14 @@
+name: battery_soc_full
+extends: base_residential
+description: Battery fully charged. Charge must be inhibited and surplus exported.
+tags: [battery, boundary]
+controls:
+  plant.battery.soc_pct: 100
+  plant.pv_profile: custom
+  plant.load_profile: custom
+  plant.pv_w: 6000
+  plant.load_w: 1000
+expect:
+  - at: 5s
+    that: telemetry.battery_200_W
+    equals: 0

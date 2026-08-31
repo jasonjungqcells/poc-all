@@ -1,0 +1,9 @@
+name: tz_dst_fall_back
+extends: base_residential
+description: The 01:00 hour occurs twice, so energy accumulators must not double-count.
+tags: [time, dst, boundary]
+controls:
+  sim.timezone: America/Los_Angeles
+clock:
+  start: "2026-11-01T00:45:00-07:00"
+  rate: 60

@@ -1,0 +1,24 @@
+name: grid_outage_with_low_battery
+extends: base_backup_primary
+description: Outage at 15 percent SoC. The battery drains and load is eventually shed.
+tags: [grid, backup, battery, failure]
+clock:
+  start: "2026-06-21T18:00:00-07:00"
+  rate: 60
+controls:
+  plant.pv_profile: sunrise_sunset
+  plant.load_profile: evening_peak
+  plant.battery.soc_pct: 15
+timeline:
+  - at: 5m
+    set: { plant.grid.status: 1 }
+    note: outage begins at dusk
+  - at: 5m10s
+    inject: { code: e002, device: ems, level: A }
+expect:
+  - at: 6m
+    that: telemetry.Grid_Status
+    equals: 1
+  - at: 40m
+    that: plant.battery.soc_pct
+    lessThan: 15

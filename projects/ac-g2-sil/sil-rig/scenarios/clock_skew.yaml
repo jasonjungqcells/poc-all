@@ -1,0 +1,6 @@
+name: clock_skew
+extends: base_residential
+description: The device clock is two hours ahead of the client, so timestamps disagree.
+tags: [time, failure, common]
+controls:
+  sim.clock_skew_s: 7200

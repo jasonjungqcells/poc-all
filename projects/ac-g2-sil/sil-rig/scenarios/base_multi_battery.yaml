@@ -1,0 +1,10 @@
+name: base_multi_battery
+extends: base_residential
+description: Four batteries plus four expansion units, at the configuration limit.
+tags: [base, battery, scale]
+controls:
+  site.battery_count: 4
+  site.expansion_battery_count: 4
+  plant.battery.capacity_wh: 54000
+  plant.battery.max_charge_w: 10000
+  plant.battery.max_discharge_w: 10000

@@ -1,0 +1,6 @@
+name: fw_update_chunk_rejected
+extends: base_residential
+description: Chunk 12 is rejected by the device.
+tags: [firmware, failure, protocol]
+controls:
+  fw.chunk_reject_index: 12

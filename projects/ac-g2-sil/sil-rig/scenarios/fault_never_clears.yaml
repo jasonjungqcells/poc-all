@@ -1,0 +1,12 @@
+name: fault_never_clears
+extends: base_residential
+description: >
+  A fault is raised and its clear notification is suppressed. FaultNoti.flag never
+  returns to 0, so a client relying on the clear event alone will show the fault
+  forever.
+tags: [fault, failure, silent]
+controls:
+  fault.suppress_clear: true
+timeline:
+  - at: 20s
+    inject: { code: e001, device: ems, level: F }

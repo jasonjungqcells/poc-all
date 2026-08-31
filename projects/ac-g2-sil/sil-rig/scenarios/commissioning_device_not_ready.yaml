@@ -1,0 +1,9 @@
+name: commissioning_device_not_ready
+extends: base_minimal
+description: >
+  The device is still booting and not ready to be commissioned. Exercises the
+  30000 ms ENSURE_READY_TIMEOUT_MS path.
+tags: [commissioning, failure, timing]
+controls:
+  sim.boot_delay_s: 45
+  cloud.error_code: 4604

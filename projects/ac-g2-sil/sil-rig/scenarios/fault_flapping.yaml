@@ -1,0 +1,17 @@
+name: fault_flapping
+extends: base_residential
+description: One fault sets and clears every 15 seconds, testing notification debounce.
+tags: [fault, chaos]
+timeline:
+  - at: 15s
+    inject: { code: i002, device: inverter, level: A }
+  - at: 30s
+    clear: [i002]
+  - at: 45s
+    inject: { code: i002, device: inverter, level: A }
+  - at: 1m
+    clear: [i002]
+  - at: 1m15s
+    inject: { code: i002, device: inverter, level: A }
+  - at: 1m30s
+    clear: [i002]

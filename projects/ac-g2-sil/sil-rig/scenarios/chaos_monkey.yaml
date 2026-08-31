@@ -1,0 +1,14 @@
+name: chaos_monkey
+extends: base_residential
+description: >
+  Random faults, random API failures and random latency, all seeded so any crash is
+  reproducible from the scenario name and seed alone.
+tags: [chaos, soak, high-value]
+seed: 20260101
+controls:
+  fault.random.enabled: true
+  fault.random.rate_per_hour: 240
+  fault.random.max_active: 6
+  api.fail_rate_pct: 8
+  api.jitter_ms: 2000
+  net.cloud.packet_loss_pct: 5

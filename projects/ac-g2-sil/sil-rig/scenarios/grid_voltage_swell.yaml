@@ -1,0 +1,8 @@
+name: grid_voltage_swell
+extends: base_residential
+description: Grid voltage swells to 280 V, above the normal operating window.
+tags: [grid, failure]
+timeline:
+  - at: 30s
+    set: { plant.grid.voltage_v: 280 }
+    inject: { code: g001, device: grid, level: A }

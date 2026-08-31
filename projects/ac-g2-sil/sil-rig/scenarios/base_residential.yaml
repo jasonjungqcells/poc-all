@@ -1,0 +1,9 @@
+name: base_residential
+extends: base_solar
+description: Solar plus one battery and a hub. The common residential case.
+tags: [base, residential]
+controls:
+  site.battery_count: 1
+  site.inverter_count: 1
+  plant.battery.soc_pct: 55
+  plant.battery.capacity_wh: 13500

@@ -1,0 +1,9 @@
+name: can_registers_frozen
+extends: base_residential
+description: >
+  CAN reads keep succeeding but values never change. Silent staleness: nothing
+  errors, nothing is true.
+tags: [can, silent-failure, degraded]
+timeline:
+  - at: 30s
+    set: { can.registers.freeze: true }

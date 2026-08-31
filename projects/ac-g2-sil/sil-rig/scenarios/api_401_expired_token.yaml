@@ -1,0 +1,8 @@
+name: api_401_expired_token
+extends: base_residential
+description: >
+  Tokens live for five seconds, so they expire mid-flow and the client must
+  exercise its refresh path rather than failing outright.
+tags: [api, auth, failure]
+controls:
+  api.auth.token_ttl_s: 5

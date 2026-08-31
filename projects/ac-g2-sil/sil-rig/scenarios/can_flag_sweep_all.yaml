@@ -1,0 +1,10 @@
+name: can_flag_sweep_all
+extends: base_residential
+description: >
+  Every addressable fault bit on every domain and severity at once: 768 bits
+  per PCS unit. A deliberate worst case for list rendering and notification
+  fan-out.
+tags: [can, fault, sweep, bulk, scale]
+timeline:
+  - at: 20s
+    set: { can.flag.sweep: all }

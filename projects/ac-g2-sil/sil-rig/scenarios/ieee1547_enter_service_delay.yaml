@@ -1,0 +1,21 @@
+name: ieee1547_enter_service_delay
+extends: base_residential
+description: >
+  The five-minute wait. Grid voltage recovers, but the inverter must see a
+  sustained in-window condition for ESDlyTms before reconnecting, then ramp
+  over ESRmpTms. This is why the system does not come back when the lights do,
+  and it generates more support calls than almost anything else.
+tags: [grid, ieee1547, enter-service, standards]
+clock:
+  rate: 60
+controls:
+  grid.ieee1547.enabled: true
+  grid.enter_service.delay_s: 300
+  grid.enter_service.ramp_s: 300
+timeline:
+  - at: 1m
+    set: { plant.grid.voltage_v: 180 }
+    note: deep sag trips the inverter
+  - at: 3m
+    set: { plant.grid.voltage_v: 240 }
+    note: voltage recovers; the 5 minute enter-service clock starts here

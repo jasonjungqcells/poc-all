@@ -1,0 +1,7 @@
+name: scale_long_strings
+extends: base_residential
+description: Maximum length serials, SSIDs and site names, to flush out layout truncation.
+tags: [scale, ui, boundary]
+controls:
+  sim.max_length_strings: true
+  site.name: "Site name that is deliberately far longer than any reasonable label width"

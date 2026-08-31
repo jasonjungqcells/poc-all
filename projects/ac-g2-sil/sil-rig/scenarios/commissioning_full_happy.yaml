@@ -1,0 +1,25 @@
+name: commissioning_full_happy
+extends: base_residential
+description: End-to-end commissioning with everything working. The smoke test.
+tags: [happy, commissioning, smoke]
+controls:
+  site.commissioning_status: NOT_STARTED
+  mi.scan.discover_count: 12
+  mi.scan.partial_pct: 100
+  net.wifi.state: disconnected
+  net.wifi.connect_fail_reason: none
+  fw.fail_mode: none
+timeline:
+  - at: 10s
+    set: { site.commissioning_status: IN_PROGRESS }
+    note: installer begins commissioning
+  - at: 2m
+    set: { net.wifi.state: connected, net.type: 1 }
+    note: network configured
+  - at: 5m
+    set: { site.commissioning_status: COMPLETED }
+    note: validation passed
+expect:
+  - at: 6m
+    that: site.commissioning_status
+    equals: COMPLETED

@@ -1,0 +1,8 @@
+name: spi_desync
+extends: base_residential
+description: >
+  The 0xAA sync byte is corrupted, so the framing layer must resynchronise rather
+  than misinterpret payload bytes as a header.
+tags: [spi, mcu, failure, protocol]
+controls:
+  mcu.spi.desync: true

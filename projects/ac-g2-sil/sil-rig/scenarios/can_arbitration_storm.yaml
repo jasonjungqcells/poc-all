@@ -1,0 +1,9 @@
+name: can_arbitration_storm
+extends: base_residential
+description: >
+  Heavy bus contention: a third of frames lose arbitration and are never sent.
+  Reads succeed eventually but with unpredictable latency and gaps.
+tags: [can, transport, degraded]
+controls:
+  can.arbitration_loss_rate_pct: 33
+  can.form_error_rate_pct: 5

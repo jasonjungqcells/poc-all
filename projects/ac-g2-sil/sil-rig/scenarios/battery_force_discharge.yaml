@@ -1,0 +1,15 @@
+name: battery_force_discharge
+extends: base_residential
+description: FORCE_DISCHARGE mode. Battery exports through the grid.
+tags: [battery, energy, mode]
+controls:
+  site.ems_type: ESS_GEN4
+  plant.energy_control: 4
+  plant.pv_profile: night
+  plant.load_profile: custom
+  plant.load_w: 500
+  plant.battery.soc_pct: 90
+expect:
+  - at: 5s
+    that: telemetry.battery_200_W
+    greaterThan: 0

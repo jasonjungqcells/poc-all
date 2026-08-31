@@ -1,0 +1,9 @@
+name: cellular_activation_fail
+extends: base_residential
+description: Cellular activation is rejected by the carrier.
+tags: [network, cellular, failure]
+controls:
+  net.cellular.state: failed
+timeline:
+  - at: 30s
+    inject: { code: e021, device: ems, level: A }

@@ -1,0 +1,12 @@
+name: can_flag_raw_bytes
+extends: base_residential
+description: >
+  Write raw flag bytes directly, the way the Gen1 HMI Error tab did. The escape
+  hatch for conditions nobody has named: eight faults per write, no code needed.
+tags: [can, fault, raw]
+timeline:
+  - at: 20s
+    set:
+      can.flag.byte.1.Grid.Fault.0: 255
+      can.flag.byte.1.PCS.Warning.3: 170
+      can.flag.byte.1.BDC.Alarm.7: 1

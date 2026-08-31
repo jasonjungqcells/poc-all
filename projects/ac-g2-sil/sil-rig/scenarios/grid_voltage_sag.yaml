@@ -1,0 +1,8 @@
+name: grid_voltage_sag
+extends: base_residential
+description: Grid voltage sags to 180 V, below the normal operating window.
+tags: [grid, failure]
+timeline:
+  - at: 30s
+    set: { plant.grid.voltage_v: 180 }
+    inject: { code: g001, device: grid, level: A }

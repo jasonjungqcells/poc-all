@@ -1,0 +1,7 @@
+name: wifi_scan_slow
+extends: base_residential
+description: Scan exceeds the 10 second SCAN_SETTLE_DELAY_MS budget.
+tags: [network, wifi, slow, failure]
+controls:
+  net.wifi.scan_delay_ms: 25000
+  api.route.publish.latency_ms: 25000

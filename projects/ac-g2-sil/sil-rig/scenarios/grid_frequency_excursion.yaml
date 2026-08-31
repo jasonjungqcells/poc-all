@@ -1,0 +1,13 @@
+name: grid_frequency_excursion
+extends: base_residential
+description: Frequency excursions below and above the trip thresholds.
+tags: [grid, failure]
+timeline:
+  - at: 30s
+    set: { plant.grid.frequency_hz: 58.5 }
+    inject: { code: g002, device: grid, level: A }
+  - at: 2m
+    set: { plant.grid.frequency_hz: 61.5 }
+  - at: 4m
+    set: { plant.grid.frequency_hz: 60 }
+    clear: [g002]

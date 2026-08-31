@@ -1,0 +1,6 @@
+name: mi_reconnection_short
+extends: base_solar
+description: The short reconnection interval is enabled, so microinverters rejoin rapidly.
+tags: [mi, timing]
+controls:
+  mi.reconnect_short: true

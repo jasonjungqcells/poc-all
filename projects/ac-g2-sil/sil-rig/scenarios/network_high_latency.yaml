@@ -1,0 +1,7 @@
+name: network_high_latency
+extends: base_residential
+description: Five seconds of latency on every local API call.
+tags: [network, api, failure, slow]
+controls:
+  api.latency_ms: 5000
+  net.cloud.latency_ms: 8000

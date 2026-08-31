@@ -1,0 +1,13 @@
+name: base_solar
+extends: base_minimal
+description: AC Combiner plus 12 microinverters, no battery. EMS type ACCB_GEN2.
+tags: [base, solar]
+controls:
+  site.ems_type: ACCB_GEN2
+  site.accombiner_present: true
+  site.mi_count: 12
+  site.battery_count: 0
+  site.hub_count: 1
+  site.panel_system_size_w: 4800
+  plant.pv_profile: clear_day
+  plant.load_profile: residential_day

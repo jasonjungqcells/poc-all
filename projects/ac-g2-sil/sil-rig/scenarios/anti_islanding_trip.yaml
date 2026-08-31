@@ -1,0 +1,13 @@
+name: anti_islanding_trip
+extends: base_residential
+description: Protective anti-islanding trip on loss of grid without backup capability.
+tags: [grid, protection, failure]
+controls:
+  site.ems_type: ACCB_GEN2
+  site.backup_type: NONE
+timeline:
+  - at: 30s
+    set: { plant.grid.status: 1 }
+    inject:
+      - { code: i006, device: inverter, level: F }
+      - { code: g003, device: grid, level: F }

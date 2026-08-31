@@ -1,0 +1,10 @@
+name: flow_generator
+extends: base_backup_primary
+description: Generator present. The enum exists in every client but is rarely rendered.
+tags: [energy, flow, generator, gap]
+controls:
+  site.generator_present: true
+  plant.grid.status: 1
+  plant.pv_profile: night
+  plant.load_w: 3000
+  plant.load_profile: custom

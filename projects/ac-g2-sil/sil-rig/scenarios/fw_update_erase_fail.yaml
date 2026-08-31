@@ -1,0 +1,7 @@
+name: fw_update_erase_fail
+extends: base_residential
+description: Flash erase never reports completion after the 270 ms stabilisation wait.
+tags: [firmware, failure, spi]
+controls:
+  mcu.fw.erase_ok: false
+  mcu.erase_delay_ms: 5000

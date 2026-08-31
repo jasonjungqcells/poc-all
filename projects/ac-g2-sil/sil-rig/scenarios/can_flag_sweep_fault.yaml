@@ -1,0 +1,13 @@
+name: can_flag_sweep_fault
+extends: base_residential
+description: >
+  Raise all 256 Fault-severity bits across Grid, PCS, BDC and MCU domains at
+  once, then clear them. Bulk equivalent of flipping every switch on the Gen1
+  Fault Manager tab, and the fastest check that a client renders and then
+  releases a full fault set without leaking rows.
+tags: [can, fault, sweep, bulk]
+timeline:
+  - at: 20s
+    set: { can.flag.sweep: Fault }
+  - at: 90s
+    set: { can.flag.clear_all: true }

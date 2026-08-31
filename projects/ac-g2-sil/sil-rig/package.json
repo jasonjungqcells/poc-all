@@ -1,0 +1,37 @@
+{
+  "name": "@qcells/sil-rig",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AC Gen2 EMS+ software-in-the-loop rig. Serves the real local device API (:9112) so installer apps and the Web HMI run unmodified against a fully controlled, deterministic simulation.",
+  "bin": {
+    "sil": "./dist/cli.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/cli.ts serve",
+    "start": "tsx src/cli.ts serve",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "ctl": "tsx src/cli.ts ctl"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "express": "^5.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "selfsigned": "^2.4.1",
+    "ws": "^8.18.0",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.7.0",
+    "@types/ws": "^8.5.12",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

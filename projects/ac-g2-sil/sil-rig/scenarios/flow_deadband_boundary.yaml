@@ -1,0 +1,12 @@
+name: flow_deadband_boundary
+extends: base_residential
+description: >
+  Powers sit at exactly the 0.1 kW deadband. Proves the deadband is applied
+  before rounding: reversing the order changes which flow case fires.
+tags: [energy, flow, boundary, regression]
+controls:
+  plant.pv_profile: custom
+  plant.load_profile: custom
+  plant.pv_w: 100
+  plant.load_w: 150
+  plant.energy_control: 0

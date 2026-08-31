@@ -1,0 +1,8 @@
+name: ble_handshake_timeout
+extends: base_minimal
+description: Handshake exceeds the 10000 ms HANDSHAKE_TIMEOUT_MS budget.
+tags: [ble, failure, timeout]
+controls:
+  ble.enabled: true
+  ble.pair.fail_reason: handshake_timeout
+  ble.handshake_delay_ms: 15000

@@ -1,0 +1,7 @@
+name: commissioning_serial_mismatch
+extends: base_residential
+description: The scanned serial number does not match the device.
+tags: [commissioning, failure]
+controls:
+  db.serial_mismatch: true
+  site.serial_number: "MISMATCHED-0000"

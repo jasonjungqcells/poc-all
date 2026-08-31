@@ -1,0 +1,7 @@
+name: api_slow_degraded
+extends: base_residential
+description: Three seconds on every call, with jitter.
+tags: [api, slow, degraded]
+controls:
+  api.latency_ms: 3000
+  api.jitter_ms: 1500

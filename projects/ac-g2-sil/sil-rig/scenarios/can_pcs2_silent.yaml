@@ -1,0 +1,13 @@
+name: can_pcs2_silent
+extends: base_residential
+description: >
+  Two-unit site where the second PCS stops answering. Site power must reflect
+  one unit, not two, and the app must not average a missing unit as zero.
+tags: [can, pcs, failure]
+controls:
+  can.pcs_count: 2
+timeline:
+  - at: 30s
+    set: { can.pcs2.silent: true }
+    inject:
+      - { code: e004, device: ems, level: W }

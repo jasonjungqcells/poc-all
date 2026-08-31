@@ -1,0 +1,10 @@
+name: base_large_solar
+extends: base_solar
+description: 200 microinverters and four inverters, exercising scale limits.
+tags: [base, scale, solar]
+controls:
+  site.mi_count: 200
+  site.inverter_count: 4
+  site.panel_system_size_w: 80000
+  mi.scan.discover_count: 200
+  plant.inverter.max_output_w: 30400

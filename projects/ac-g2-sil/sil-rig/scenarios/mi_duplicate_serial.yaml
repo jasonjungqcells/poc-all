@@ -1,0 +1,6 @@
+name: mi_duplicate_serial
+extends: base_solar
+description: Two microinverters report the same serial number.
+tags: [mi, failure, data-integrity]
+controls:
+  mi.duplicate_serials: true

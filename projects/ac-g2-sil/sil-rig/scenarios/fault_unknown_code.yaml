@@ -1,0 +1,9 @@
+name: fault_unknown_code
+extends: base_residential
+description: >
+  A code that is absent from the display JSON. The UI must degrade to showing the
+  raw code rather than a blank row or a crash.
+tags: [fault, failure, boundary, ui]
+timeline:
+  - at: 20s
+    inject: { code: zz999, device: ems, level: F }

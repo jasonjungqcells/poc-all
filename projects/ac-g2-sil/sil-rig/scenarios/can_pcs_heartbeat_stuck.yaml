@@ -1,0 +1,9 @@
+name: can_pcs_heartbeat_stuck
+extends: base_residential
+description: >
+  PCS CPU hangs. Registers still read and still return plausible values, but
+  the heartbeat stops incrementing -- the only signal that the data is dead.
+tags: [can, pcs, silent-failure]
+timeline:
+  - at: 30s
+    set: { can.pcs1.heartbeat_stuck: true }

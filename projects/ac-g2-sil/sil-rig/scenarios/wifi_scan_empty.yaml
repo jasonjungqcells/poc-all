@@ -1,0 +1,7 @@
+name: wifi_scan_empty
+extends: base_residential
+description: Scan returns zero access points.
+tags: [network, wifi, commissioning, boundary]
+controls:
+  net.wifi.state: disconnected
+  net.wifi.scan_count: 0

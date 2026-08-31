@@ -1,0 +1,6 @@
+name: api_malformed_json
+extends: base_residential
+description: Responses are syntactically invalid JSON.
+tags: [api, failure, parsing]
+controls:
+  api.malformed_json: true

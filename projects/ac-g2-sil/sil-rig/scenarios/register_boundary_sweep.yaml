@@ -1,0 +1,19 @@
+name: register_boundary_sweep
+extends: base_residential
+description: >
+  Every metric reports its declared minimum, then its maximum, then an
+  out-of-range value. Drives all 4411 QcellsSPI metrics through their extremes to
+  flush out formatting, overflow and unit-conversion defects in one run.
+tags: [mcu, registers, boundary, sweep, high-value]
+controls:
+  mcu.registers.boundary_mode: min
+timeline:
+  - at: 2m
+    set: { mcu.registers.boundary_mode: max }
+    note: sweep to declared maxima
+  - at: 4m
+    set: { mcu.registers.boundary_mode: over }
+    note: exceed declared maxima
+  - at: 6m
+    set: { mcu.registers.boundary_mode: none }
+    note: return to nominal

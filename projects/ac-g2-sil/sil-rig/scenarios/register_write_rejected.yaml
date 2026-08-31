@@ -1,0 +1,6 @@
+name: register_write_rejected
+extends: base_residential
+description: All register writes are rejected, so settings never persist.
+tags: [mcu, registers, failure]
+controls:
+  mcu.registers.write_reject: true

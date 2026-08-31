@@ -1,0 +1,12 @@
+name: tz_asia_seoul
+extends: base_residential
+description: >
+  A KST device viewed from a US client. Daily energy totals must roll over on the
+  device timezone, not the phone's.
+tags: [time, locale, boundary, common]
+controls:
+  sim.timezone: Asia/Seoul
+  site.timezone_id: Asia/Seoul
+clock:
+  start: "2026-06-21T23:30:00+09:00"
+  rate: 60

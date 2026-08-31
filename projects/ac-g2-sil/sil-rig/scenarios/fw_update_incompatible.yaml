@@ -1,0 +1,7 @@
+name: fw_update_incompatible
+extends: base_residential
+description: The image targets an unsupported firmware version. Cloud code 4602.
+tags: [firmware, failure, compatibility]
+controls:
+  fw.fail_mode: incompatible
+  cloud.error_code: 4602

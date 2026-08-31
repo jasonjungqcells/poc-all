@@ -1,0 +1,6 @@
+name: spi_timeout
+extends: base_residential
+description: SPI reads exceed the 20000 ms ACK_TIMEOUT_MS budget.
+tags: [spi, mcu, failure, timeout]
+controls:
+  mcu.spi.latency_ms: 25000

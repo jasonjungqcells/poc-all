@@ -1,0 +1,8 @@
+name: base_backup_standalone
+extends: base_residential
+description: Standalone backup EMS. The only type that emits 15-minute MI telemetry in production.
+tags: [base, backup]
+controls:
+  site.ems_type: BACKUP_STANDALONE
+  site.backup_type: PARTIAL
+  cloud.telemetry_15m: true

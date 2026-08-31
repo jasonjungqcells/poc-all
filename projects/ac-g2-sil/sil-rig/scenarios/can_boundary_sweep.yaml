@@ -1,0 +1,13 @@
+name: can_boundary_sweep
+extends: base_residential
+description: >
+  Drive all 2,985 g4 CAN metrics to their declared maxima, then past them.
+  Fault flag bytes are excluded so the sweep does not read as a total fault.
+tags: [can, boundary, bulk]
+timeline:
+  - at: 20s
+    set: { can.registers.boundary_mode: max }
+  - at: 60s
+    set: { can.registers.boundary_mode: over }
+  - at: 120s
+    set: { can.registers.boundary_mode: none }

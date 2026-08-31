@@ -1,0 +1,10 @@
+name: soak_7day
+extends: base_residential
+description: A week at 600x, mixing clear and cloudy days.
+tags: [soak, long-running]
+clock:
+  start: "2026-06-21T00:00:00-07:00"
+  rate: 600
+controls:
+  plant.pv_profile: mixed_week
+  plant.load_profile: residential_day

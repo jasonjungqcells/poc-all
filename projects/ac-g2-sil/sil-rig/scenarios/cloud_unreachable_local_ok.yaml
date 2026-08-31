@@ -1,0 +1,11 @@
+name: cloud_unreachable_local_ok
+extends: base_residential
+description: >
+  Cloud is unreachable but the local device API is fully functional. Extremely
+  common in the field and frequently mishandled: apps must not treat cloud
+  failure as device failure.
+tags: [network, failure, offline, common]
+controls:
+  net.cloud.reachable: false
+  net.dns.fail: true
+  cloud.error_code: 5200

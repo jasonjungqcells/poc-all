@@ -1,0 +1,9 @@
+name: battery_bms_fault
+extends: base_residential
+description: BMS communication lost. The battery becomes unavailable mid-run.
+tags: [battery, failure]
+timeline:
+  - at: 1m
+    inject: { code: b001, device: battery-qhome-smart, level: F }
+    set: { site.battery_count: 0 }
+    note: BMS drops offline

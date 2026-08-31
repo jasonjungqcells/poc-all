@@ -1,0 +1,6 @@
+name: overcast_day
+extends: base_solar
+description: A steady overcast day at roughly 20 percent of clear-sky output.
+tags: [solar, weather]
+controls:
+  plant.pv_profile: overcast

@@ -1,0 +1,10 @@
+name: sse_never_first_event
+extends: base_residential
+description: >
+  The realtime stream opens but never delivers a first event, so the UI must not
+  shimmer forever.
+tags: [api, sse, failure, ui]
+controls:
+  cloud.enabled: true
+  cloud.sse.enabled: true
+  cloud.sse.first_event_delay_s: 600

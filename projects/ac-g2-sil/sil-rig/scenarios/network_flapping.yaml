@@ -1,0 +1,13 @@
+name: network_flapping
+extends: base_residential
+description: Connectivity toggles every 30 seconds.
+tags: [network, failure, chaos]
+timeline:
+  - at: 30s
+    set: { net.cloud.reachable: false, net.wifi.state: disconnected }
+  - at: 1m
+    set: { net.cloud.reachable: true, net.wifi.state: connected }
+  - at: 1m30s
+    set: { net.cloud.reachable: false, net.wifi.state: disconnected }
+  - at: 2m
+    set: { net.cloud.reachable: true, net.wifi.state: connected }

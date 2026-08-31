@@ -1,0 +1,16 @@
+name: battery_force_charge
+extends: base_residential
+description: FORCE_CHARGE mode. Battery charges from the grid regardless of PV.
+tags: [battery, energy, mode]
+controls:
+  site.ems_type: ESS_GEN4
+  plant.energy_control: 3
+  plant.pv_profile: night
+  plant.battery.soc_pct: 40
+expect:
+  - at: 5s
+    that: telemetry.battery_200_W
+    lessThan: 0
+  - at: 5s
+    that: telemetry.grid_200_W
+    greaterThan: 0

@@ -1,0 +1,11 @@
+name: fault_sweep_ems
+extends: base_residential
+description: >
+  Injects every EMS fault code in turn, holding each for 20 seconds and then
+  clearing it. Verifies that each code renders a description and a how-to-fix
+  string, and that every fault has a working clear path.
+tags: [fault, sweep, high-value]
+controls:
+  fault.sweep.device: ems
+  fault.sweep.hold_s: 20
+  fault.sweep.enabled: true

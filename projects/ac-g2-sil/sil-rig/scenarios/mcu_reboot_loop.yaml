@@ -1,0 +1,17 @@
+name: mcu_reboot_loop
+extends: base_residential
+description: The MCU reboots every 30 seconds, so telemetry never stabilises.
+tags: [mcu, failure, chaos]
+timeline:
+  - at: 30s
+    set: { mcu.online: false }
+  - at: 40s
+    set: { mcu.online: true }
+  - at: 1m10s
+    set: { mcu.online: false }
+  - at: 1m20s
+    set: { mcu.online: true }
+  - at: 1m50s
+    set: { mcu.online: false }
+  - at: 2m
+    set: { mcu.online: true }

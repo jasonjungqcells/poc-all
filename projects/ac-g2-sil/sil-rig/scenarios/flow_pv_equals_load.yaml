@@ -1,0 +1,19 @@
+name: flow_pv_equals_load
+extends: base_residential
+description: >
+  PV exactly equals load. In the shared 26-case matrix the `when` chain is
+  evaluated top-down, so Case312 is only reachable at this exact equality.
+  Reordering the branches silently changes behaviour, which makes this the
+  branch-order canary.
+tags: [energy, flow, boundary, regression]
+controls:
+  plant.pv_profile: custom
+  plant.load_profile: custom
+  plant.pv_w: 2000
+  plant.extpv_w: 0
+  plant.load_w: 2000
+  plant.energy_control: 0
+expect:
+  - at: 5s
+    that: telemetry.grid_200_W
+    equals: 0

@@ -1,0 +1,16 @@
+name: commissioning_ct_reversed
+extends: base_residential
+description: >
+  CT clamps installed backwards, so grid import reads as export. The single most
+  common physical installation error, and one the app should be able to detect
+  from sign alone.
+tags: [commissioning, failure, common]
+controls:
+  site.ct.consumption_pair1: Reversed
+  plant.pv_profile: night
+  plant.load_profile: custom
+  plant.load_w: 2500
+expect:
+  - at: 5s
+    that: telemetry.grid_200_W
+    lessThan: 0

@@ -1,0 +1,13 @@
+name: pv_curtailment
+extends: base_solar
+description: >
+  Export limit is reached, so PV is curtailed and generation drops below available
+  irradiance.
+tags: [solar, grid, curtailment]
+controls:
+  plant.grid.export_limit_w: 2000
+  plant.pv_profile: custom
+  plant.pv_w: 7000
+  plant.load_profile: custom
+  plant.load_w: 500
+  plant.battery.soc_pct: 100

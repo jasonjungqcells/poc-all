@@ -1,0 +1,6 @@
+name: ws_upgrade_rejected
+extends: base_residential
+description: WebSocket upgrades are refused, forcing clients onto polling.
+tags: [api, websocket, failure, fallback]
+controls:
+  api.ws.reject_upgrade: true

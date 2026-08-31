@@ -1,0 +1,7 @@
+name: mi_large_array
+extends: base_large_solar
+description: Sixty microinverters, testing list virtualisation and scan pagination.
+tags: [mi, scale, ui]
+controls:
+  site.mi_count: 60
+  mi.scan.discover_count: 60

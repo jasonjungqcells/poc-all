@@ -1,0 +1,7 @@
+name: ble_pairing_happy
+extends: base_minimal
+description: Clean BLE pairing and handshake.
+tags: [happy, ble, commissioning]
+controls:
+  ble.enabled: true
+  ble.pair.fail_reason: none

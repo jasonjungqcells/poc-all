@@ -1,0 +1,7 @@
+name: spi_crc_error
+extends: base_residential
+description: Ten percent of SPI frames fail CRC verification.
+tags: [spi, mcu, failure]
+seed: 4242
+controls:
+  mcu.spi.crc_error_rate_pct: 10

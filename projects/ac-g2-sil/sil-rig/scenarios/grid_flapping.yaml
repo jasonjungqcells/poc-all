@@ -1,0 +1,19 @@
+name: grid_flapping
+extends: base_backup_primary
+description: Grid drops and returns repeatedly, stressing debounce and state-machine logic.
+tags: [grid, failure, chaos]
+controls:
+  plant.battery.soc_pct: 60
+timeline:
+  - at: 30s
+    set: { plant.grid.status: 1 }
+  - at: 1m
+    set: { plant.grid.status: 0 }
+  - at: 1m30s
+    set: { plant.grid.status: 1 }
+  - at: 2m
+    set: { plant.grid.status: 0 }
+  - at: 2m30s
+    set: { plant.grid.status: 1 }
+  - at: 3m
+    set: { plant.grid.status: 0 }

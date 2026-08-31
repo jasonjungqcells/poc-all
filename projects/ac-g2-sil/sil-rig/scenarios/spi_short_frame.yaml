@@ -1,0 +1,8 @@
+name: spi_short_frame
+extends: base_residential
+description: >
+  Frames arrive shorter than the fixed 71 bytes that FUS-124 pinned the MPU
+  receiver to.
+tags: [spi, mcu, failure, protocol]
+controls:
+  mcu.spi.short_frame: true

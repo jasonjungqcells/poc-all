@@ -1,0 +1,9 @@
+name: battery_cold_derate
+extends: base_residential
+description: Battery at -10 C, so charging is heavily inhibited.
+tags: [battery, thermal, degraded]
+controls:
+  plant.battery.temperature_c: -10
+timeline:
+  - at: 30s
+    inject: { code: b004, device: battery-qhome-smart, level: A }

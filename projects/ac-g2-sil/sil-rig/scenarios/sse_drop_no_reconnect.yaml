@@ -1,0 +1,10 @@
+name: sse_drop_no_reconnect
+extends: base_residential
+description: >
+  The stream drops after 45 seconds. Documented behaviour is that the client does
+  not auto-reconnect, so this verifies the UI surfaces the stall rather than
+  silently showing stale values.
+tags: [api, sse, failure, ui]
+controls:
+  cloud.enabled: true
+  cloud.sse.drop_after_s: 45

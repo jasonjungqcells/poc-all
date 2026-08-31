@@ -1,0 +1,7 @@
+name: tz_midnight_rollover
+extends: base_residential
+description: Daily totals reset at local midnight.
+tags: [time, boundary]
+clock:
+  start: "2026-06-21T23:55:00-07:00"
+  rate: 60

@@ -1,0 +1,17 @@
+name: ieee1547_cat1_fast_trip
+extends: base_residential
+description: >
+  Category I: minimum ride-through. The same excursion that Category III
+  survives trips this system.
+tags: [grid, ieee1547, ride-through, standards]
+controls:
+  # Ride-through thresholds are sub-second, so the tick must be finer than
+  # the default 1 s or the excursion cannot be resolved at all.
+  sim.tick_ms: 50
+  grid.ieee1547.abnormal_category: I
+timeline:
+  - at: 30s
+    set: { plant.grid.voltage_v: 200 }
+  - at: 30500ms
+    set: { plant.grid.voltage_v: 240 }
+    note: 500 ms excursion -- longer than Category I tolerates, shorter than Category III

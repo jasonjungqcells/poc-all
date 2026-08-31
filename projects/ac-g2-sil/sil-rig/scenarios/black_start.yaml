@@ -1,0 +1,10 @@
+name: black_start
+extends: base_backup_primary
+description: Cold start with no grid present. Battery must bootstrap the island.
+tags: [grid, backup, boundary]
+controls:
+  plant.grid.status: 1
+  plant.battery.soc_pct: 45
+  plant.pv_profile: night
+  plant.load_profile: custom
+  plant.load_w: 1200

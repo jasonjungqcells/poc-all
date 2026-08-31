@@ -1,0 +1,7 @@
+name: dns_failure
+extends: base_residential
+description: DNS resolution fails while raw TCP connectivity is fine.
+tags: [network, failure]
+controls:
+  net.dns.fail: true
+  net.cloud.reachable: false

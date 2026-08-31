@@ -1,0 +1,14 @@
+name: flow_all_zero
+extends: base_residential
+description: Fully idle system. No flow animation should render at all.
+tags: [energy, flow, boundary]
+controls:
+  plant.pv_profile: custom
+  plant.load_profile: custom
+  plant.pv_w: 0
+  plant.load_w: 0
+  plant.energy_control: 0
+expect:
+  - at: 5s
+    that: telemetry.grid_200_W
+    equals: 0

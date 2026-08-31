@@ -1,0 +1,8 @@
+name: ws_out_of_order
+extends: base_residential
+description: >
+  Responses arrive out of order. Clients that assume FIFO rather than matching
+  on tid will attribute results to the wrong request.
+tags: [api, websocket, failure, protocol]
+controls:
+  api.ws.out_of_order: true

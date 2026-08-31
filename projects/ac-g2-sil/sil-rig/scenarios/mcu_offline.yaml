@@ -1,0 +1,11 @@
+name: mcu_offline
+extends: base_residential
+description: >
+  The MCU is entirely absent. Everything downstream of the SPI link is
+  unavailable while the MPU itself stays healthy.
+tags: [mcu, failure, worst-case]
+controls:
+  mcu.online: false
+timeline:
+  - at: 10s
+    inject: { code: e025, device: ems, level: F }

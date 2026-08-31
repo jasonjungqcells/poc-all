@@ -1,0 +1,6 @@
+name: ws_drop_midsession
+extends: base_residential
+description: The socket is closed 30 seconds after connecting.
+tags: [api, websocket, failure]
+controls:
+  api.ws.drop_after_s: 30

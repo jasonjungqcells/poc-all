@@ -1,0 +1,7 @@
+name: ble_not_found
+extends: base_minimal
+description: The device never appears in the BLE scan.
+tags: [ble, failure, common]
+controls:
+  ble.enabled: true
+  ble.pair.fail_reason: not_found

@@ -1,0 +1,8 @@
+name: captive_portal
+extends: base_residential
+description: Requests are intercepted by a captive portal returning HTML rather than JSON.
+tags: [network, failure, common]
+controls:
+  net.captive_portal: true
+  net.cloud.reachable: false
+  api.malformed_json: true

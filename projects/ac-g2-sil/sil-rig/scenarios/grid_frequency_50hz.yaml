@@ -1,0 +1,6 @@
+name: grid_frequency_50hz
+extends: base_residential
+description: A 50 Hz regional profile against a site configured for 60 Hz.
+tags: [grid, config, failure]
+controls:
+  plant.grid.frequency_hz: 50

@@ -1,0 +1,7 @@
+name: api_500_all
+extends: base_residential
+description: Every local API endpoint returns 500.
+tags: [api, failure]
+controls:
+  api.fail_rate_pct: 100
+  api.fail_status: 500

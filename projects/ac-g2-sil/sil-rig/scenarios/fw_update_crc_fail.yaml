@@ -1,0 +1,7 @@
+name: fw_update_crc_fail
+extends: base_residential
+description: The image transfers cleanly but fails CRC verification on the MCU.
+tags: [firmware, failure, spi]
+controls:
+  mcu.fw.crc_pass: false
+  fw.fail_mode: crc

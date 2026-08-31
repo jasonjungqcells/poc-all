@@ -1,0 +1,21 @@
+name: ieee1547_enter_service_restart
+extends: base_residential
+description: >
+  A brief excursion during the enter-service wait restarts the whole delay.
+  The window must be held continuously, not cumulatively -- a distinction that
+  countdown UIs routinely get wrong.
+tags: [grid, ieee1547, enter-service, standards, failure]
+clock:
+  rate: 60
+controls:
+  grid.enter_service.delay_s: 300
+timeline:
+  - at: 1m
+    set: { plant.grid.voltage_v: 180 }
+  - at: 2m
+    set: { plant.grid.voltage_v: 240 }
+  - at: 5m
+    set: { plant.grid.voltage_v: 200 }
+    note: dip during the wait -- clock must restart, not resume
+  - at: 6m
+    set: { plant.grid.voltage_v: 240 }

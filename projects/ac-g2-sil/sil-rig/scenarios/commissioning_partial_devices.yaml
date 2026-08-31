@@ -1,0 +1,7 @@
+name: commissioning_partial_devices
+extends: base_solar
+description: Eight microinverters are expected but only five are discovered.
+tags: [commissioning, failure, discovery, common]
+controls:
+  site.mi_count: 8
+  mi.scan.discover_count: 5

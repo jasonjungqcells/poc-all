@@ -1,0 +1,13 @@
+name: battery_soc_zero
+extends: base_residential
+description: Battery fully depleted. Discharge must be inhibited.
+tags: [battery, boundary]
+controls:
+  plant.battery.soc_pct: 0
+  plant.pv_profile: night
+  plant.load_profile: custom
+  plant.load_w: 2000
+expect:
+  - at: 5s
+    that: telemetry.battery_200_W
+    equals: 0

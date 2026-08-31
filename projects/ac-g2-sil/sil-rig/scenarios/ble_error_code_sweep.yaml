@@ -1,0 +1,7 @@
+name: ble_error_code_sweep
+extends: base_minimal
+description: Walks the ten BLE wire error codes from 0xFF down to 0xF4.
+tags: [ble, sweep, failure]
+controls:
+  ble.enabled: true
+  ble.error_sweep: true

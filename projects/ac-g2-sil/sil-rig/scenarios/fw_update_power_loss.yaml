@@ -1,0 +1,11 @@
+name: fw_update_power_loss
+extends: base_residential
+description: Power is lost at 60 percent, mid-transfer.
+tags: [firmware, failure, worst-case]
+controls:
+  fw.fail_at_pct: 60
+  fw.fail_mode: power_loss
+timeline:
+  - at: 1m
+    set: { mcu.online: false }
+    inject: { code: e025, device: ems, level: F }

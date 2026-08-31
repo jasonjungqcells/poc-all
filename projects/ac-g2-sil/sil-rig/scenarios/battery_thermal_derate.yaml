@@ -1,0 +1,9 @@
+name: battery_thermal_derate
+extends: base_residential
+description: Battery at 55 C, so charge and discharge power are derated.
+tags: [battery, thermal, degraded]
+controls:
+  plant.battery.temperature_c: 55
+timeline:
+  - at: 30s
+    inject: { code: b003, device: battery-qhome-smart, level: F }

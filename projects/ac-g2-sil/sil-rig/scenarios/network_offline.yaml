@@ -1,0 +1,10 @@
+name: network_offline
+extends: base_residential
+description: No cloud reachability. The local API must keep working regardless.
+tags: [network, failure, offline]
+controls:
+  net.cloud.reachable: false
+  cloud.error_code: 4600
+timeline:
+  - at: 30s
+    inject: { code: e004, device: ems, level: A }
