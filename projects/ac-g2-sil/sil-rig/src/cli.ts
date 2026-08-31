@@ -12,6 +12,38 @@ program
 
 const DEFAULT_CONTROL_URL = process.env.SIL_CONTROL_URL ?? 'http://127.0.0.1:9114';
 
+interface ScenarioRow {
+  name: string;
+  description?: string;
+  tags?: string[];
+  kind?: string;
+  areas?: string[];
+  steps?: number;
+  expects?: number;
+  durationMs?: number;
+}
+
+/** Compact human duration: the scenario clock runs in minutes and hours, not ms. */
+function humanMs(ms: number): string {
+  if (ms < 1000) return `${ms}ms`;
+  const s = Math.round(ms / 1000);
+  if (s < 90) return `${s}s`;
+  const m = Math.round(s / 60);
+  if (m < 90) return `${m}m`;
+  const h = m / 60;
+  return h < 48 ? `${h % 1 === 0 ? h : h.toFixed(1)}h` : `${Math.round(h / 24)}d`;
+}
+
+/**
+ * What a scenario *is*, in one column: 96 of the 157 are static rig setups with
+ * no timeline at all, and that is the first thing worth knowing about one.
+ */
+function scenarioShape(s: ScenarioRow): string {
+  if (!s.steps) return 'static setup';
+  const checks = s.expects ? `, ${s.expects} check${s.expects === 1 ? '' : 's'}` : '';
+  return `${humanMs(s.durationMs ?? 0)} run, ${s.steps} step${s.steps === 1 ? '' : 's'}${checks}`;
+}
+
 program
   .command('serve')
   .description('Run the rig: local device API, WebSocket bridge, and control plane')
@@ -89,7 +121,12 @@ ctl
   .action(async (file, opts) => {
     const path = file ?? opts.file;
     if (!path) throw new Error('a file path is required, positionally or with -f');
-    const map = YAML.parse(readFileSync(path, 'utf8')) as Record<string, unknown>;
+    // `-` reads stdin, so a patch can be piped. The console's "copy as CLI"
+    // emits exactly this form: a staged batch of edits is a JSON object, and
+    // requiring it to be written to a file first would make the pasted command
+    // a two-step instruction rather than a command.
+    const source = path === '-' ? readFileSync(0, 'utf8') : readFileSync(path, 'utf8');
+    const map = YAML.parse(source) as Record<string, unknown>;
     console.log(JSON.stringify(await sendJson('PATCH', `${opts.url}/control`, { controls: map }), null, 2));
   });
 
@@ -153,18 +190,50 @@ const scenario = program.command('scenario').description('Load and inspect scena
 scenario
   .command('list')
   .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
-  .option('-t, --tag <tag>', 'filter by tag')
+  .option('-t, --tag <tag>', 'filter by raw tag')
+  .option('-k, --kind <kind>', 'filter by kind (see `scenario facets`)')
+  .option('-a, --area <area>', 'filter by area (see `scenario facets`)')
+  .option('-q, --search <text>', 'match name or description')
+  .option('--timed', 'only scenarios that have a timeline')
   .action(async (opts) => {
-    const body = (await getJson(`${opts.url}/scenarios`)) as {
-      scenarios: Array<{ name: string; description?: string; tags?: string[] }>;
-    };
-    const filtered = opts.tag
-      ? body.scenarios.filter((s) => s.tags?.includes(opts.tag))
-      : body.scenarios;
+    const body = (await getJson(`${opts.url}/scenarios`)) as { scenarios: ScenarioRow[] };
+    const q = String(opts.search ?? '').toLowerCase();
+    const filtered = body.scenarios.filter((s) => {
+      if (opts.tag && !(s.tags ?? []).includes(opts.tag)) return false;
+      if (opts.kind && s.kind !== opts.kind) return false;
+      if (opts.area && !(s.areas ?? []).includes(opts.area)) return false;
+      if (opts.timed && !s.steps) return false;
+      if (q && !`${s.name} ${s.description ?? ''}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
     for (const s of filtered) {
-      console.log(`${s.name.padEnd(36)} ${(s.tags ?? []).join(',').padEnd(28)} ${s.description ?? ''}`);
+      console.log(
+        `${s.name.padEnd(34)} ${String(s.kind ?? '').padEnd(12)} ${scenarioShape(s).padEnd(24)} ${s.description ?? ''}`,
+      );
     }
-    console.log(`\n${filtered.length} scenario(s)`);
+    console.log(`\n${filtered.length} of ${body.scenarios.length} scenario(s)`);
+  });
+
+scenario
+  .command('facets')
+  .description('The kind and area filters, with counts — what the console filters by')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (opts) => {
+    const f = (await getJson(`${opts.url}/scenarios/facets`)) as {
+      total: number;
+      kinds: Array<{ id: string; label: string; hint: string; count: number }>;
+      areas: Array<{ id: string; label: string; hint: string; count: number }>;
+    };
+    for (const [title, defs, flag] of [
+      ['KIND', f.kinds, '--kind'],
+      ['AREA', f.areas, '--area'],
+    ] as const) {
+      console.log(`\n${title}`);
+      for (const d of defs) {
+        console.log(`  ${String(d.count).padStart(4)}  ${flag} ${d.id.padEnd(13)} ${d.hint}`);
+      }
+    }
+    console.log(`\n${f.total} scenario(s). Every scenario has one kind and any number of areas.`);
   });
 
 scenario
@@ -187,6 +256,43 @@ scenario
   .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
   .action(async (opts) => {
     console.log(JSON.stringify(await getJson(`${opts.url}/scenario/state`), null, 2));
+  });
+
+scenario
+  .command('stop')
+  .description('Halt the running timeline, leaving the state it produced in place')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (opts) => {
+    console.log(JSON.stringify(await sendJson('POST', `${opts.url}/scenarios/stop`, {}), null, 2));
+  });
+
+scenario
+  .command('reload')
+  .description('Re-read the scenario directory, picking up newly written files')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (opts) => {
+    console.log(JSON.stringify(await sendJson('POST', `${opts.url}/scenarios/reload`, {}), null, 2));
+  });
+
+scenario
+  .command('export [file]')
+  .description('Write the current session as a runnable scenario file')
+  .option('-n, --name <name>', 'scenario name')
+  .option('-d, --description <text>', 'scenario description')
+  .option('-t, --tag <tag...>', 'scenario tags')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (file, opts) => {
+    const body = (await sendJson('POST', `${opts.url}/scenario/export`, {
+      name: opts.name,
+      description: opts.description,
+      tags: opts.tag,
+    })) as { name: string; yaml: string; controls: number; faults: number };
+    if (file) {
+      writeFileSync(file, body.yaml);
+      console.log(`scenario ${body.name} written to ${file} (${body.controls} controls, ${body.faults} faults)`);
+    } else {
+      process.stdout.write(body.yaml);
+    }
   });
 
 // ---------------------------------------------------------------- fault
@@ -250,6 +356,70 @@ program
   .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
   .action(async (opts) => {
     console.log(JSON.stringify(await getJson(`${opts.url}/state`), null, 2));
+  });
+
+// ------------------------------------------------------------------ buses
+// The wire-level inspectors exist over HTTP already; without CLI equivalents
+// the console's bus views would be the only way to reach them, which the parity
+// rule forbids.
+const spi = program.command('spi').description('Inspect the MPU-MCU SPI link');
+
+spi
+  .command('status', { isDefault: true })
+  .description('Decoded status frame, with hex bytes')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (opts) => {
+    console.log(JSON.stringify(await getJson(`${opts.url}/spi/status`), null, 2));
+  });
+
+spi
+  .command('read <register>')
+  .description('Read a register as wire bytes plus decoded metrics')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (register, opts) => {
+    console.log(JSON.stringify(await getJson(`${opts.url}/spi/read/${register}`), null, 2));
+  });
+
+const can = program.command('can').description('Inspect and drive the g4 CAN bus');
+
+can
+  .command('status', { isDefault: true })
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (opts) => {
+    console.log(JSON.stringify(await getJson(`${opts.url}/can/status`), null, 2));
+  });
+
+can
+  .command('faults')
+  .description('Active flag bits, raw bytes, and the domain/severity taxonomy')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (opts) => {
+    console.log(JSON.stringify(await getJson(`${opts.url}/can/faults`), null, 2));
+  });
+
+can
+  .command('registers [query]')
+  .description('Search the register map by name')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (query, opts) => {
+    const path = query ? `/can/registers?q=${encodeURIComponent(query)}` : '/can/registers';
+    console.log(JSON.stringify(await getJson(`${opts.url}${path}`), null, 2));
+  });
+
+can
+  .command('read <register>')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (register, opts) => {
+    console.log(JSON.stringify(await getJson(`${opts.url}/can/read/${register}`), null, 2));
+  });
+
+can
+  .command('write <register> [json]')
+  .description('Write metrics to a register, as a JSON object')
+  .option('-u, --url <url>', 'control API base URL', DEFAULT_CONTROL_URL)
+  .action(async (register, json, opts) => {
+    const body = JSON.parse(json ?? '{}') as Record<string, unknown>;
+    console.log(JSON.stringify(await sendJson('POST', `${opts.url}/can/write/${register}`, body), null, 2));
   });
 
 program.parseAsync(process.argv).catch((err) => {

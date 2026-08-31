@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import YAML from 'yaml';
 import type { RigContext } from '../core/context.js';
 import { ControlError } from '../core/controls.js';
 import { parseDuration } from '../core/clock.js';
@@ -118,7 +119,11 @@ export function buildControlApi(ctx: RigContext, scenarios: ScenarioEngine): Rou
 
   // -------------------------------------------------------------- scenarios
   router.get('/scenarios', (_req, res) => {
-    res.json({ scenarios: scenarios.list() });
+    res.json({ scenarios: scenarios.list(), facets: scenarios.facets() });
+  });
+
+  router.get('/scenarios/facets', (_req, res) => {
+    res.json(scenarios.facets());
   });
 
   router.get('/scenarios/:name', (req, res) => {
@@ -139,8 +144,71 @@ export function buildControlApi(ctx: RigContext, scenarios: ScenarioEngine): Rou
     }
   });
 
+  router.post('/scenarios/stop', (_req, res) => {
+    res.json(scenarios.stop());
+  });
+
+  /**
+   * Re-read the scenario directory.
+   *
+   * Without this, exporting a session is a dead end: the file lands next to the
+   * other 157 scenarios and the rig that produced it cannot run it until it is
+   * restarted, which is exactly the state the export was meant to preserve.
+   */
+  router.post('/scenarios/reload', (_req, res) => {
+    scenarios.reload();
+    res.json({ reloaded: true, scenarios: scenarios.list().length });
+  });
+
   router.get('/scenario/state', (_req, res) => {
     res.json(scenarios.state());
+  });
+
+  /**
+   * Render the current session as a runnable scenario file.
+   *
+   * This is the artifact half of the parity rule. A session -- however it was
+   * driven, by CLI, by console, or by hand with curl -- is only a bug report
+   * once it is a file someone else can run, and `GET /control/diff` stops one
+   * step short of that. Everything here comes from the diff, so an exported
+   * scenario reloads to exactly the state it was exported from.
+   */
+  router.post('/scenario/export', (req, res) => {
+    const body = (req.body ?? {}) as Record<string, unknown>;
+    const diff = ctx.controls.diff();
+    // `sim.seed` is emitted as the scenario's `seed`, so leaving it in the
+    // control block too would set it twice and invite the two to disagree.
+    const { 'sim.seed': _seed, ...controls } = diff as Record<string, unknown>;
+
+    const doc: Record<string, unknown> = {
+      name: String(body.name ?? `repro_${new Date().toISOString().slice(0, 19).replace(/[:T-]/g, '')}`),
+      description: String(body.description ?? `Exported from a running rig at ${ctx.clock.nowIso()}`),
+      tags: Array.isArray(body.tags) ? body.tags : ['repro'],
+      seed: ctx.controls.num('sim.seed'),
+      clock: { start: ctx.clock.nowIso(), rate: ctx.clock.getRate() },
+      controls,
+    };
+
+    const active = ctx.faults.list();
+    if (active.length > 0) {
+      // Faults are engine state, not control values, so they are absent from
+      // the diff and would silently vanish from the export -- usually the one
+      // thing the report is about.
+      doc.timeline = [
+        {
+          at: 0,
+          note: 'faults active at export',
+          inject: active.map((f) => ({ code: f.code, device: f.device, level: f.level })),
+        },
+      ];
+    }
+
+    const yaml = YAML.stringify(doc, { lineWidth: 100 });
+    if (String(req.query.format ?? '') === 'yaml') {
+      res.type('text/yaml').send(yaml);
+      return;
+    }
+    res.json({ name: doc.name, controls: Object.keys(controls).length, faults: active.length, yaml });
   });
 
   // ----------------------------------------------------------------- faults

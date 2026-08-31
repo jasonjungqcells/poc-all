@@ -3,6 +3,28 @@ import { join, basename } from 'node:path';
 import YAML from 'yaml';
 import { parseDuration } from '../core/clock.js';
 import type { RigContext } from '../core/context.js';
+import { AREAS, KINDS, areasOf, kindOf } from './facets.js';
+import type { FacetDef, ScenarioArea, ScenarioKind } from './facets.js';
+
+/** A catalog entry: enough to choose a scenario without opening it. */
+export interface ScenarioSummary {
+  name: string;
+  description?: string;
+  tags?: string[];
+  extends?: string;
+  kind: ScenarioKind;
+  areas: ScenarioArea[];
+  steps: number;
+  expects: number;
+  /** Virtual milliseconds from load to the last scheduled step or check. */
+  durationMs: number;
+}
+
+export interface ScenarioFacets {
+  total: number;
+  kinds: Array<FacetDef<ScenarioKind> & { count: number }>;
+  areas: Array<FacetDef<ScenarioArea> & { count: number }>;
+}
 
 export interface TimelineStep {
   at: string | number;
@@ -41,6 +63,25 @@ export interface ExpectationResult {
   passed: boolean;
 }
 
+/** A timeline step as reported to a client, with enough detail to render it. */
+export interface TimelineProgress {
+  index: number;
+  atMs: number;
+  note?: string;
+  summary: string;
+  done: boolean;
+}
+
+/** An expectation as reported to a client, before or after it resolves. */
+export interface ExpectationProgress {
+  index: number;
+  atMs: number;
+  that: string;
+  expected: string;
+  status: 'pending' | 'passed' | 'failed';
+  actual?: unknown;
+}
+
 /**
  * Scenario engine.
  *
@@ -56,6 +97,17 @@ export class ScenarioEngine {
   private pendingSteps: Array<{ atMs: number; step: TimelineStep }> = [];
   private pendingExpectations: Array<{ atMs: number; expectation: Expectation }> = [];
   private results: ExpectationResult[] = [];
+  /**
+   * The full schedules as loaded, kept alongside the pending queues.
+   *
+   * The queues are consumed as they fire, so on their own they can only answer
+   * "what is left" -- a timeline view needs to show the steps already taken and
+   * where the run is within the whole, which is unrecoverable once shifted off.
+   */
+  private allSteps: Array<{ atMs: number; step: TimelineStep }> = [];
+  private allExpectations: Array<{ atMs: number; expectation: Expectation }> = [];
+  private stopped = false;
+  private stoppedAtMs = 0;
 
   constructor(
     private readonly ctx: RigContext,
@@ -80,10 +132,59 @@ export class ScenarioEngine {
     }
   }
 
-  list(): Array<{ name: string; description?: string; tags?: string[]; extends?: string }> {
+  /**
+   * The catalog, summarised.
+   *
+   * Name and tags alone are not enough to choose from 157 scenarios: the
+   * decisive fact is usually whether a scenario is a static rig setup or a
+   * timed run, and how long that run is. That is only knowable after `extends`
+   * resolution, since a child inherits its parent's timeline unless it declares
+   * its own, so this resolves before counting.
+   */
+  list(): ScenarioSummary[] {
     return [...this.docs.values()]
-      .map((d) => ({ name: d.name, description: d.description, tags: d.tags, extends: d.extends }))
+      .map((d) => {
+        let resolved = d;
+        try {
+          resolved = this.resolve(d.name);
+        } catch {
+          // A broken `extends` chain is worth reporting from `load`, not worth
+          // dropping the scenario out of the catalog that would explain it.
+        }
+        const steps = resolved.timeline ?? [];
+        const expects = resolved.expect ?? [];
+        const ends = [...steps, ...expects].map((s) => parseDuration(s.at));
+        return {
+          name: d.name,
+          description: d.description,
+          tags: d.tags,
+          extends: d.extends,
+          kind: kindOf(d.tags),
+          areas: areasOf(d.tags),
+          steps: steps.length,
+          expects: expects.length,
+          durationMs: ends.length > 0 ? Math.max(...ends) : 0,
+        };
+      })
       .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  /** Facet catalogs with counts, so a client can render filters without a tag table. */
+  facets(): ScenarioFacets {
+    const items = this.list();
+    const count = <T extends string>(
+      defs: ReadonlyArray<FacetDef<T>>,
+      pick: (s: ScenarioSummary) => readonly T[],
+    ): Array<FacetDef<T> & { count: number }> => {
+      const tally = new Map<T, number>();
+      for (const s of items) for (const id of pick(s)) tally.set(id, (tally.get(id) ?? 0) + 1);
+      return defs.map((d) => ({ ...d, count: tally.get(d.id) ?? 0 }));
+    };
+    return {
+      total: items.length,
+      kinds: count(KINDS, (s) => [s.kind]),
+      areas: count(AREAS, (s) => s.areas),
+    };
   }
 
   get(name: string): ScenarioDoc | undefined {
@@ -131,12 +232,16 @@ export class ScenarioEngine {
     const applied = doc.controls ? controls.patch(doc.controls).length : 0;
 
     this.loadedAtMs = clock.elapsedMs();
+    this.stopped = false;
+    this.stoppedAtMs = 0;
     this.pendingSteps = (doc.timeline ?? [])
       .map((step) => ({ atMs: parseDuration(step.at), step }))
       .sort((a, b) => a.atMs - b.atMs);
     this.pendingExpectations = (doc.expect ?? [])
       .map((expectation) => ({ atMs: parseDuration(expectation.at), expectation }))
       .sort((a, b) => a.atMs - b.atMs);
+    this.allSteps = [...this.pendingSteps];
+    this.allExpectations = [...this.pendingExpectations];
 
     this.current = doc;
     this.ctx.log('info', `scenario loaded: ${doc.name}`, {
@@ -259,18 +364,111 @@ export class ScenarioEngine {
     }
   }
 
+  /**
+   * Halt the running timeline, keeping the state it has already produced.
+   *
+   * Deliberately not a reset: the point of stopping is usually to freeze a rig
+   * mid-scenario and look at it, or to take manual control from where the
+   * scenario got to. Anyone wanting the controls back at defaults has
+   * `POST /control/reset`, and conflating the two would make the destructive
+   * option the only one.
+   */
+  stop(): { stopped: boolean; scenario: string | null; droppedSteps: number; droppedExpectations: number } {
+    if (!this.current) {
+      return { stopped: false, scenario: null, droppedSteps: 0, droppedExpectations: 0 };
+    }
+    const droppedSteps = this.pendingSteps.length;
+    const droppedExpectations = this.pendingExpectations.length;
+    this.pendingSteps = [];
+    this.pendingExpectations = [];
+    this.stopped = true;
+    this.stoppedAtMs = this.ctx.clock.elapsedMs() - this.loadedAtMs;
+    this.ctx.log('info', `scenario stopped: ${this.current.name}`, { droppedSteps, droppedExpectations });
+    return { stopped: true, scenario: this.current.name, droppedSteps, droppedExpectations };
+  }
+
   state(): Record<string, unknown> {
+    const offsetMs = this.current
+      ? this.stopped
+        ? this.stoppedAtMs
+        : this.ctx.clock.elapsedMs() - this.loadedAtMs
+      : 0;
+    const pendingStepSet = new Set(this.pendingSteps.map((s) => s.step));
+    const resultsByKey = new Map(this.results.map((r) => [`${r.atMs}|${r.that}`, r]));
+
+    const steps: TimelineProgress[] = this.allSteps.map(({ atMs, step }, index) => ({
+      index,
+      atMs,
+      note: step.note,
+      summary: describeStep(step),
+      done: !pendingStepSet.has(step),
+    }));
+
+    const expectations: ExpectationProgress[] = this.allExpectations.map(
+      ({ atMs, expectation }, index) => {
+        const result = resultsByKey.get(`${atMs}|${expectation.that}`);
+        return {
+          index,
+          atMs,
+          that: expectation.that,
+          expected: describeExpectation(expectation),
+          status: result ? (result.passed ? 'passed' : 'failed') : 'pending',
+          actual: result?.actual,
+        };
+      },
+    );
+
+    // `currentStep` is the last step that has fired, which is what a timeline
+    // highlights: the step that explains the state on screen right now.
+    let currentStep: number | null = null;
+    for (const step of steps) if (step.done) currentStep = step.index;
+
     return {
       current: this.current?.name ?? null,
       description: this.current?.description,
       tags: this.current?.tags ?? [],
-      offsetMs: this.current ? this.ctx.clock.elapsedMs() - this.loadedAtMs : 0,
+      offsetMs,
+      stopped: this.stopped,
+      stepCount: steps.length,
+      completedSteps: steps.filter((s) => s.done).length,
+      currentStep,
+      durationMs: steps.length > 0 ? steps[steps.length - 1]!.atMs : 0,
+      steps,
+      expectations,
       pendingSteps: this.pendingSteps.length,
       pendingExpectations: this.pendingExpectations.length,
       results: this.results,
       passed: this.results.every((r) => r.passed),
     };
   }
+}
+
+/**
+ * One-line summary of what a step does.
+ *
+ * A timeline that shows only times and notes is useless for the many scenarios
+ * whose steps carry no note, and dumping the raw step object into a row is
+ * unreadable at 40 steps.
+ */
+function describeStep(step: TimelineStep): string {
+  const parts: string[] = [];
+  if (step.set) {
+    const keys = Object.keys(step.set);
+    parts.push(
+      keys.length <= 2
+        ? keys.map((k) => `${k}=${JSON.stringify(step.set![k])}`).join(', ')
+        : `set ${keys.length} controls`,
+    );
+  }
+  if (step.inject) {
+    const list = Array.isArray(step.inject) ? step.inject : [step.inject];
+    parts.push(`inject ${list.map((f) => f.code).join(', ')}`);
+  }
+  if (step.clear) {
+    const list = Array.isArray(step.clear) ? step.clear : [step.clear];
+    parts.push(`clear ${list.join(', ')}`);
+  }
+  return parts.join(' · ') || step.note || 'no-op';
 }
 
 /**

@@ -10,10 +10,13 @@
   "scripts": {
     "dev": "tsx watch src/cli.ts serve",
     "start": "tsx src/cli.ts serve",
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "npm run web:build && tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && npm run web:typecheck",
     "test": "node --import tsx --test test/*.test.ts",
-    "ctl": "tsx src/cli.ts ctl"
+    "ctl": "tsx src/cli.ts ctl",
+    "web:dev": "vite --config web/vite.config.ts",
+    "web:build": "vite build --config web/vite.config.ts",
+    "web:typecheck": "vue-tsc -p web/tsconfig.json --noEmit"
   },
   "dependencies": {
     "commander": "^12.1.0",
@@ -28,8 +31,12 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.7.0",
     "@types/ws": "^8.5.12",
+    "@vitejs/plugin-vue": "^6.0.8",
     "tsx": "^4.19.1",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "vite": "^8.2.2",
+    "vue": "^3.5.42",
+    "vue-tsc": "^3.3.11"
   },
   "engines": {
     "node": ">=20"

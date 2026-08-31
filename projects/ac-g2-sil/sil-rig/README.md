@@ -269,6 +269,7 @@ npx tsx src/cli.ts ctl get plant.battery.soc_pct
 npx tsx src/cli.ts ctl set plant.battery.soc_pct 15
 npx tsx src/cli.ts ctl diff              # paste straight into a scenario file
 npx tsx src/cli.ts ctl patch my-setup.yaml
+npx tsx src/cli.ts ctl patch -           # or from stdin
 npx tsx src/cli.ts ctl reset
 
 npx tsx src/cli.ts clock step 1h
@@ -276,8 +277,13 @@ npx tsx src/cli.ts clock pause
 npx tsx src/cli.ts clock resume 60
 
 npx tsx src/cli.ts scenario list
+npx tsx src/cli.ts scenario facets       # kind and area filters, with counts
+npx tsx src/cli.ts scenario list --kind failure --area grid --timed
 npx tsx src/cli.ts scenario load grid_outage
 npx tsx src/cli.ts scenario state
+npx tsx src/cli.ts scenario stop
+npx tsx src/cli.ts scenario reload       # pick up newly written scenario files
+npx tsx src/cli.ts scenario export bug-4821.yaml
 
 npx tsx src/cli.ts fault inject e001
 npx tsx src/cli.ts fault clear all
@@ -286,6 +292,14 @@ npx tsx src/cli.ts fault list
 npx tsx src/cli.ts snapshot save bug-1234.json   # attach to a bug report
 npx tsx src/cli.ts snapshot restore bug-1234.json
 npx tsx src/cli.ts state
+
+npx tsx src/cli.ts spi status                    # frame length, CRC, raw hex
+npx tsx src/cli.ts spi read <register>
+npx tsx src/cli.ts can status
+npx tsx src/cli.ts can faults                    # decoded flag bits
+npx tsx src/cli.ts can registers --filter pcs
+npx tsx src/cli.ts can read <register>
+npx tsx src/cli.ts can write <register> <value>
 ```
 
 `serve --paused` starts with the clock stopped, which is the right mode for CI:
@@ -310,8 +324,29 @@ src/
   control/            control-plane REST
   scenario/           YAML loader, extends resolution, timeline, expectations
 scenarios/            157 scenario files
-test/                 unit tests, smoke script, determinism proof
+web/                  Vue 3 console: a thin client of control/, built to dist/web
+test/                 unit tests, smoke script, determinism proof, parity test
 ```
+
+---
+
+## Web console
+
+```bash
+npm run web:build       # emit dist/web
+npx tsx src/cli.ts serve
+open http://localhost:9114
+```
+
+The control server hosts the console at its own port, mounted after the API router
+so no route is shadowed. `npm run web:dev` runs Vite on :9115 with the control
+paths proxied, for hot reload against a rig you started separately.
+
+The console is deliberately a thin client: every button maps to a control-plane
+route that the CLI can also reach. `web/src/api/actions.ts` declares that mapping
+and `test/parity.test.ts` fails the build if the console gains an action the CLI
+lacks, or if it imports rig runtime code. If the CLI cannot do it, the console
+does not get to.
 
 ---
 

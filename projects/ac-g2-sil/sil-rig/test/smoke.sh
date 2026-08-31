@@ -111,6 +111,20 @@ check "load grid_outage" \
 check "scenario applied its controls" \
   "$(curl -s --max-time 5 "$CTL/control/plant.battery.soc_pct")" '70'
 
+# The catalog has to be choosable, not just listable: the console's filters and
+# `scenario list --kind/--area` both read these fields, and a summary without
+# them sends you back to opening files one at a time.
+check "the catalog says what each scenario is" \
+  "$(curl -s --max-time 5 "$CTL/scenarios")" '"kind"'
+check "the catalog reports timeline size" \
+  "$(curl -s --max-time 5 "$CTL/scenarios")" '"durationMs"'
+check "facets are counted server-side" \
+  "$(curl -s --max-time 5 "$CTL/scenarios/facets")" '"kinds"'
+check "every facet carries a readable hint" \
+  "$(curl -s --max-time 5 "$CTL/scenarios/facets")" '"hint"'
+check "facets do not shadow scenario lookup" \
+  "$(curl -s --max-time 5 "$CTL/scenarios/grid_outage")" '"timeline"'
+
 echo
 echo "== CAN bus (seam A, qcells_ess_g4)"
 check "GET /can/status reports the g4 map" \
@@ -174,6 +188,44 @@ check "clock tick interval follows the control on reset" \
   "$(curl -s --max-time 5 -X POST "$CTL/scenarios/ieee1547_cat1_fast_trip/load" >/dev/null; \
      curl -s --max-time 5 -X POST "$CTL/scenarios/base_residential/load" >/dev/null; \
      curl -s --max-time 5 "$CTL/clock")" '"tickMs":1000'
+
+echo
+echo "== event stream and web console"
+
+# The console is a client of these; if they break, the console is a blank page
+# and the failure looks like a frontend bug rather than a control-plane one.
+check "GET /events sends a hello frame with full state" \
+  "$(curl -sN --max-time 3 "$CTL/events" | head -c 400)" 'event: hello'
+check "GET /events/stats reports the stream" \
+  "$(curl -s --max-time 5 "$CTL/events/stats")" '"flushMs"'
+
+check "scenario state carries step progress" \
+  "$(curl -s --max-time 5 -X POST "$CTL/scenarios/grid_outage/load" >/dev/null; \
+     curl -s --max-time 5 "$CTL/scenario/state")" '"stepCount"'
+check "POST /scenarios/stop halts the timeline" \
+  "$(curl -s --max-time 5 -X POST "$CTL/scenarios/stop")" '"stopped":true'
+
+# The export is the artifact half of the parity rule: a session has to be able
+# to leave the rig as something another machine can run.
+check "POST /scenario/export renders runnable YAML" \
+  "$(curl -s --max-time 5 -X POST "$CTL/scenario/export" \
+     -H 'Content-Type: application/json' -d '{"name":"smoke_export"}')" '"yaml"'
+check "POST /scenario/export?format=yaml is a file, not JSON" \
+  "$(curl -s --max-time 5 -X POST "$CTL/scenario/export?format=yaml" \
+     -H 'Content-Type: application/json' -d '{}')" 'name: '
+
+# The console is optional: an unbuilt one must not break the control API, and a
+# built one must not shadow it.
+if [[ -f dist/web/index.html ]]; then
+  check "console index is served" \
+    "$(curl -s --max-time 5 -H 'Accept: text/html' "$CTL/")" '<div id="app">'
+  check "console deep link falls back to index" \
+    "$(curl -s --max-time 5 -H 'Accept: text/html' "$CTL/faults")" '<div id="app">'
+  check "static mount does not shadow the API" \
+    "$(curl -s --max-time 5 "$CTL/clock")" '"tick"'
+else
+  printf '  skip console not built (npm run web:build)\n'
+fi
 
 echo
 printf '%d passed, %d failed\n' "$pass" "$fail"

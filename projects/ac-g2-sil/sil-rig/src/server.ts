@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer as createHttpServer, type Server } from 'node:http';
 import { createServer as createHttpsServer } from 'node:https';
 import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import selfsigned from 'selfsigned';
 
@@ -21,6 +22,7 @@ import { buildDeviceApi } from './api/device-api.js';
 import { faultInjection } from './api/middleware.js';
 import { attachWsBridge } from './ws/bridge.js';
 import { buildControlApi } from './control/api.js';
+import { buildEventStream } from './control/events.js';
 import { ScenarioEngine } from './scenario/engine.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -39,6 +41,11 @@ export interface RigOptions {
   host?: string;
   quiet?: boolean;
   autoplay?: boolean;
+  /**
+   * Built web console assets. Defaults to `dist/web`; the console is optional,
+   * and when the directory is absent the control API serves as it always has.
+   */
+  webDir?: string;
 }
 
 export interface Rig {
@@ -196,6 +203,21 @@ export function createRig(options: RigOptions = {}): Rig {
   controlApp.use(express.json({ limit: '16mb' }));
   controlApp.use(cors());
   controlApp.use(buildControlApi(ctx, scenarios));
+  controlApp.use(buildEventStream(ctx, scenarios));
+  // The console is mounted last so it can never shadow a control route: the API
+  // is the product, the console is a client of it.
+  const webRoot = resolveWebRoot(options.webDir);
+  if (webRoot) {
+    controlApp.use(express.static(webRoot, { index: 'index.html', maxAge: 0 }));
+    controlApp.use(spaFallback(webRoot));
+  } else {
+    controlApp.get('/', (_req, res) => {
+      res
+        .status(503)
+        .type('text/plain')
+        .send('web console not built\n\n  npm run web:build   # then reload\n');
+    });
+  }
   controlApp.use((_req, res) => res.status(404).json({ error: 'not found' }));
   const controlServer = createHttpServer(controlApp);
 
@@ -222,6 +244,13 @@ export function createRig(options: RigOptions = {}): Rig {
       log('info', `device API   ${scheme}://${host}:${port}   (point installer apps here)`);
       log('info', `websocket    ${tls ? 'wss' : 'ws'}://${host}:${port}/ws`);
       log('info', `control API  http://${host}:${controlPort}/control`);
+      log('info', `event stream http://${host}:${controlPort}/events`);
+      log(
+        'info',
+        webRoot
+          ? `web console  http://${host}:${controlPort}/`
+          : 'web console  not built (npm run web:build)',
+      );
       log('info', `register map ${mcu.model.stats.registerCount} registers / ${mcu.model.stats.metricCount} metrics, ${mcu.model.stats.cyclicCount} cyclic`);
       log('info', `seed ${seed}${options.scenario ? `, scenario ${options.scenario}` : ''}${autoplay ? '' : ' (clock paused)'}`);
     },
@@ -250,6 +279,41 @@ function publishCyclic(ctx: RigContext): void {
   } catch (err) {
     ctx.log('debug', 'cyclic publish skipped', err);
   }
+}
+
+/**
+ * Locate the built web console.
+ *
+ * Two layouts must both work: running from source with `tsx` (this file is in
+ * `src/`, the build is in `../dist/web`) and running the compiled rig (this
+ * file is in `dist/`, the build is in `./web`). Guessing wrong is a silent
+ * failure -- the console 404s and the rig looks broken -- so both are probed
+ * and the presence of `index.html`, not of the directory, is the test.
+ */
+function resolveWebRoot(explicit?: string): string | null {
+  const candidates = explicit
+    ? [resolve(explicit)]
+    : [resolve(HERE, '..', 'dist', 'web'), resolve(HERE, 'web')];
+  for (const dir of candidates) {
+    if (existsSync(join(dir, 'index.html'))) return dir;
+  }
+  return null;
+}
+
+/**
+ * Serve `index.html` for client-side routes.
+ *
+ * Restricted to HTML GETs so that a mistyped API path still returns the JSON
+ * 404 the CLI and tests expect, rather than a page of markup.
+ */
+function spaFallback(webRoot: string) {
+  const index = join(webRoot, 'index.html');
+  return (req: express.Request, res: express.Response, next: express.NextFunction): void => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    if (!req.accepts('html')) return next();
+    if (req.path.includes('.')) return next();
+    res.sendFile(index);
+  };
 }
 
 /** Permissive CORS: the rig is a local development tool, not a production edge. */
